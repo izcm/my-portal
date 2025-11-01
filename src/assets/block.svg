@@ -1,5 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="256" height="256" viewBox="0 0 256 256" xml:space="preserve">
-  <g fill="rgb(59, 130, 246)" stroke="none" stroke-width="0" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" fill-rule="nonzero" opacity="1" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+<defs>
+  <linearGradient id="a2zBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#3B82F6" />   <!-- Tailwind blue-500 -->
+    <stop offset="100%" stop-color="#1E3A8A" /> <!-- Tailwind blue-900 -->
+  </linearGradient>
+</defs>
+  <g fill="url(#a2zBlueGrad)" stroke="none" stroke-width="0" stroke-dasharray="none" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" fill-rule="nonzero" opacity="1" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
    <path d="M 45 11.963 c -0.149 0 -0.299 -0.034 -0.437 -0.101 L 34.312 6.881 c -0.344 -0.167 -0.563 -0.517 -0.563 -0.899 s 0.219 -0.732 0.563 -0.899 l 10.251 -4.982 c 0.275 -0.134 0.599 -0.134 0.874 0 l 10.251 4.982 c 0.344 0.167 0.563 0.517 0.563 0.899 s -0.219 0.732 -0.563 0.899 l -10.251 4.981 C 45.299 11.93 45.149 11.963 45 11.963 z M 37.037 5.982 L 45 9.852 l 7.963 -3.87 L 45 2.112 L 37.037 5.982 z" transform=" matrix(1 0 0 1 0 0)" stroke-linecap="round"/>
 <path d="M 45 24.187 c -0.149 0 -0.299 -0.034 -0.437 -0.101 l -10.251 -4.981 c -0.344 -0.167 -0.563 -0.517 -0.563 -0.899 V 5.982 c 0 -0.345 0.177 -0.665 0.469 -0.848 c 0.293 -0.184 0.659 -0.202 0.968 -0.052 L 45 9.852 l 9.813 -4.769 c 0.311 -0.15 0.677 -0.131 0.968 0.052 c 0.292 0.183 0.47 0.503 0.47 0.848 v 12.223 c 0 0.383 -0.219 0.732 -0.563 0.899 l -10.251 4.981 C 45.299 24.153 45.149 24.187 45 24.187 z M 35.749 17.579 L 45 22.075 l 9.251 -4.496 v -10 l -8.814 4.283 c -0.275 0.134 -0.599 0.134 -0.874 0 L 35.749 7.58 V 17.579 z" transform=" matrix(1 0 0 1 0 0)" stroke-linecap="round"/>
 <path d="M 45 24.187 c -0.552 0 -1 -0.448 -1 -1 V 10.963 c 0 -0.552 0.448 -1 1 -1 s 1 0.448 1 1 v 12.223 C 46 23.739 45.552 24.187 45 24.187 z" transform=" matrix(1 0 0 1 0 0)" stroke-linecap="round"/>

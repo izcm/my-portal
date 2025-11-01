@@ -1,14 +1,10 @@
-import { ReactNode } from "react";
-
 interface ButtonProps {
   onClick?: () => void;
-  children: ReactNode;
   className?: string;
   disabled?: boolean;
 }
 export const Button = ({
   onClick,
-  children,
   className = "",
   disabled = false,
 }: ButtonProps) => {
@@ -32,8 +28,6 @@ export const Button = ({
       onMouseUp={(e) => e.currentTarget.blur()}
       className={`${baseStyle} ${disabled ? disabledStyle : ""} ${className}`}
       disabled={disabled}
-    >
-      {children}
-    </button>
+    ></button>
   );
 };

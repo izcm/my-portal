@@ -1,7 +1,10 @@
 /* ---- Hover Effects / Glow / Motion (NOT layout) ---- */
 
 .demo-card {
-  transition: border-color 240ms ease, box-shadow 240ms ease, transform 240ms ease;
+  transition:
+    border-color 240ms ease,
+    box-shadow 240ms ease,
+    transform 240ms ease;
 }
 
 .demo-card:hover {
@@ -20,7 +23,9 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(160, 180, 255, 0.55);
-  transition: opacity 260ms ease, transform 260ms ease;
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
 }
 
 .demo-card:hover .demo-card__tag {

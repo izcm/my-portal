@@ -12,7 +12,7 @@ const demos = [
     id: "swap-ui",
     img: "architecture",
     title: "On-Chain Ecosystem",
-    desc: "Web3 design patterns.",
+    desc: "Get your testnet adapter today.",
   },
   {
     id: "onchain-voting",
@@ -62,23 +62,32 @@ export default function App() {
               <h1 className="hero-title glow py-2">A2Z Blocks</h1>
               <p className="hero-kicker">End-to-end Web3 development.</p>
               <p className="hero-kicker">From blueprint to bytecode.</p>
-              <button className="btn btn-primary mt-6">Check Demos</button>
+              <button className="btn btn-primary mt-6">View Live Demos</button>
             </div>
 
-            <div className="lg:w-1/2 text-center">
+            <div className="lg:w-1/2 text-center relative">
+              {/* BACKLIGHT BEHIND SVG */}
+              <div
+                className="
+                pointer-events-none absolute right-[10%] top-1/2 -translate-y-1/2
+                w-[480px] h-[480px] rounded-full opacity-[0.55]
+                bg-[radial-gradient(circle,rgba(60,90,180,0.28),transparent_75%)]
+                blur-[110px]
+              "
+              />
               <img
                 src={blockSvg}
                 alt="block visual"
-                className="w-86 inline-block"
+                className="w-86 inline-block relative z-10"
               />
             </div>
           </div>
         </section>
 
-       <div className="h-[2px] w-full bg-seperator" />
+        <div className="h-[2px] w-full bg-seperator" />
 
         {/* DEMOS */}
-        <section className="flex flex-col mx-auto max-w-7xl px-4 py-10 fade-in">
+        <section className="flex flex-col mx-auto max-w-7xl p-10 fade-in">
           <h2 className="hero-kicker mb-4">Demos</h2>
           <div
             className="
@@ -97,7 +106,7 @@ export default function App() {
       {/* FOOTER */}
       <footer
         className="
-          flex flex-col items-center justify-center 8 h-24 gap-2
+          flex flex-col items-center justify-center h-16 gap-1
           border-t border-neutral-800 text-xs text-neutral-500
         "
       >

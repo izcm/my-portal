@@ -13,12 +13,8 @@
   --color-absolute-ice: #02040c;
   --color-frozen-void: #01030a;
 
-  --color-electric-blue: #3b82f6; /* reference (tailwind blue-500) */
-  --color-plasma: #60a5fa; /* blue-400 */
-  --color-iris: #7c3aed; /* violet-600 */
-  --color-lilac: #a78bfa; /* violet-400 */
-  --color-mint: #34d399; /* emerald-400 */
-
+  --color-seperator: rgba(120,140,255,0.35);
+  --color-subtle: rgba(120,140,255,0.18);
   --color-text: rgba(255, 255, 255, 0.9);
   --color-text-dim: rgba(255, 255, 255, 0.62);
 

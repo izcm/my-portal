@@ -39,7 +39,7 @@ export function DemoCard({ title, desc, id, img }: DemoCardProps) {
         {desc}
       </p>
 
-      <button className="demo-card__btn text-sm px-4 py-2 rounded-lg">
+      <button className="btn btn-primary demo-card__btn text-sm px-4 py-2 rounded-lg">
         View Demo →
       </button>
     </div>

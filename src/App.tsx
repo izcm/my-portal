@@ -45,7 +45,7 @@ export default function App() {
             </a>
           </div>
         </nav>
-        <div className="h-[2px] w-full bg-blue-900"></div>
+        <div className="h-[2px] w-full bg-seperator"></div>
       </div>
 
       {/* HERO */}
@@ -53,7 +53,7 @@ export default function App() {
         <section className="flex justify-center section--cosmic fade-in">
           <div
             className=" 
-              flex flex-col lg:flex-row grow min-h-[720px] 
+              flex flex-col lg:flex-row grow min-h-[640px] 
               items-center justify-center px-4 py-4
               max-w-4xl
             "
@@ -75,16 +75,15 @@ export default function App() {
           </div>
         </section>
 
-        <div className="h-[2px] w-full bg-blue-900"></div>
+       <div className="h-[2px] w-full bg-seperator" />
 
         {/* DEMOS */}
-        <section className="flex flex-col px-4 py-10 fade-in">
+        <section className="flex flex-col mx-auto max-w-7xl px-4 py-10 fade-in">
           <h2 className="hero-kicker mb-4">Demos</h2>
-
           <div
             className="
                 grid grid-cols-1 md:grid-cols-3 gap-4
-                border border-neutral-800 rounded-xl p-6
+                border border-subtle rounded-xl p-6
                 bg-black/20 backdrop-blur-sm
               "
           >
@@ -98,7 +97,7 @@ export default function App() {
       {/* FOOTER */}
       <footer
         className="
-          flex flex-col items-center justify-center 8 h-16 gap-2
+          flex flex-col items-center justify-center 8 h-24 gap-2
           border-t border-neutral-800 text-xs text-neutral-500
         "
       >

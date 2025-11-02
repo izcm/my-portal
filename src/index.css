@@ -34,17 +34,17 @@
   --text-h2: clamp(1.25rem, 1.1rem + 0.8vw, 1.875rem);
   --text-body: 1rem;
 
-  /* Cosmic gradient (very dark, blue-forward with purple accents) */
+  /* 🜂 TRUE VOID GRADIENT — barely visible color, ultra-dark */
   --gradient-cosmic-void: linear-gradient(
     135deg,
-    var(--color-frozen-void) 0%,
-    #030712 14%,
-    var(--color-absolute-ice) 26%,
-    #071126 42%,
-    #0a0f24 58%,
-    #0c1330 72%,
-    #0f1540 86%,
-    #0b0f22 100%
+    #000000 0%,
+    /* pure black */ #000103 12%,
+    /* black w/ 1% blue */ #000307 26%,
+    /* still basically black */ #00040a 40%,
+    /* tiny hint of navy */ #000614 56%,
+    /* deep midnight ink */ #01081c 72%,
+    /* blue barely visible */ #020b24 86%,
+    /* subtle icy indigo */ #000306 100% /* fade back to near-black */
   );
 }
 
@@ -219,7 +219,7 @@ a.ink:hover::after {
 }
 
 /* ------------------------------
-   SVG neon glow (apply class to the <img> wrapper or inline SVG)
+   SVG neon glow
 ---------------------------------*/
 .svg-neon,
 .svg-neon img,

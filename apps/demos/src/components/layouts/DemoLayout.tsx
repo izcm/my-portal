@@ -2,7 +2,6 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 type DemoLayoutProps = {
   title: string;
   desc: string;
@@ -23,14 +22,15 @@ export const DemoLayout = ({
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-6 py-10 fade-in">
+    <div
+      className="
+          min-h-screen flex flex-col items-center px-6 py-10 fade-in bg-nebula"
+    >
       {/* TOPBAR */}
       <header className="w-full max-w-5xl flex justify-between items-center mb-10 text-sm text-dim">
-        {/* OPTION A: Always go to landing */}
         <button onClick={() => navigate(-1)} className="ink">
           ← Back
         </button>
-
         <span className="opacity-60">A2Z Blocks</span>
       </header>
 

@@ -73,9 +73,6 @@ export const MintNFTDisplay = () => {
           />
         ))}
       </div>
-
-      {/* Mint Button */}
-      <button className="btn btn-primary mt-3">Mint NFT</button>
     </div>
   );
 };

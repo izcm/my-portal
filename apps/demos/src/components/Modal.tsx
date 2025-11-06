@@ -28,6 +28,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     >
       <div
         className="
+          flex flex-col items-center gap-4
           bg-nebula/100 border border-default rounded-xl
           max-w-sm w-[90%] p-8
           shadow-[0_0_40px_rgba(59,130,246,0.18)]
@@ -35,6 +36,8 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
         onClick={(e) => e.stopPropagation()} // prevent close when clicking modal
       >
         {children}
+        {/* Mint Button */}
+        <button className="btn btn-primary mt-3">Mint Selected</button>
       </div>
     </div>
   );

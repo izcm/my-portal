@@ -30,7 +30,7 @@ export const HomePage = () => {
       <main className="flex flex-col grow items-center py-10">
         <h1 className="text-3xl font-semibold mb-6 glow">Available Demos</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-5xl p-4">
           {demos.map((demo) => (
             <Link
               key={demo.id}

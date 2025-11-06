@@ -1,5 +1,7 @@
+const contract = import.meta.env.VITE_CONTRACT_ADDR;
+
 export const mini721ContractConfig = {
-  address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  address: contract,
   abi: [
     {
       type: "function",

@@ -13,11 +13,11 @@ export const NFTCarosel = ({ items, index, onChange }: NFTCarouselProps) => {
   const nft = items[index];
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-2">
       {/* Image Panel */}
       <div
         className="
-          w-48 h-48 flex items-center justify-center
+          w-42 h-42 flex items-center justify-center
           overflow-hidden
         "
       >
@@ -25,7 +25,7 @@ export const NFTCarosel = ({ items, index, onChange }: NFTCarouselProps) => {
           key={nft.svg}
           src={nft.svg}
           alt={nft.label}
-          className="w-full h-full object-contain fade-in"
+          className="h-full w-full object-contain fade-in"
         />
       </div>
 

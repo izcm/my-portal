@@ -16,7 +16,7 @@ export const HomePage = () => {
     <div className="flex flex-col">
       <ConnectWallet />
       {/* NAVBAR */}
-      <nav className="navbar flex items-center justify-between h-16 px-4 border-b border-neutral-800">
+      <nav className="navbar flex items-center justify-between h-16 px-4 border-b border-default">
         <span className="font-bold text-lg">A2Z Blocks — Demos</span>
         <div className="flex gap-6 text-sm">
           <Link to="/" className="ink">
@@ -35,7 +35,7 @@ export const HomePage = () => {
             <Link
               key={demo.id}
               to={`/${demo.id}`}
-              className="border border-subtle rounded-xl p-6 bg-secondary"
+              className="border border-default rounded-xl p-6"
             >
               <h2 className="text-lg font-semibold">{demo.title}</h2>
               <p className="text-dim text-sm mt-1">{demo.desc}</p>

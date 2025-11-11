@@ -24,9 +24,9 @@ import { Modal } from "../components/Modal";
 import type { UI_NFT } from "../data/UI_NFT";
 
 const previewNFTs: UI_NFT[] = [
-  { label: "ICE", svg: "/icons/miniNFT/ICE.svg" },
+  { label: "BLUSH", svg: "/icons/miniNFT/BLUSH.svg" },
   { label: "EMERALD", svg: "/icons/miniNFT/EMERALD.svg" },
-  { label: "COPPER", svg: "/icons/miniNFT/COPPER.svg" },
+  { label: "MANGO", svg: "/icons/miniNFT/MANGO.svg" },
 ];
 
 export type LogEntry = {
@@ -191,7 +191,7 @@ export const DemoPage = () => {
               onClick={() => setShowMintModal(true)}
               className="btn btn-primary flex items-center gap-2"
             >
-              🎨 Mint New
+              ⛏ Mint New
             </button>
 
             {/* TOTAL SUPPLY */}
@@ -232,7 +232,8 @@ export const DemoPage = () => {
           {/* NFT Preview*/}
           <div
             className="
-              w-80 h-80
+              w-80 h-76
+              flex justify-center
               border border-default rounded-lg
             "
           >
@@ -248,10 +249,10 @@ export const DemoPage = () => {
                 <div className="flex flex-col gap-1 text-md">
                   {/* <span>Token #3 • Owner: 0x1234…abcd</span> */}
                   <div className="flex gap-2">
-                    <button className="token-action text-pink">
+                    <button className="token-action">
                       [ Transfer ]
                     </button>
-                    <button className="token-action text-mango">
+                    <button className="token-action">
                       [ Change NFT Color ]
                     </button>
                   </div>
@@ -303,7 +304,7 @@ export const DemoPage = () => {
                 Plays with different mapping styles:
                 <ul className="not-list-cyber list-sub py-1 text-sm text-muted">
                   <li>Simple linear mapping</li>
-                  <li>Realistic keccak(key, slot)</li>
+                  <li>Realistic keccak(key, base)</li>
                 </ul>
               </li>
             </ul>
@@ -326,7 +327,7 @@ export const DemoPage = () => {
           </div>
 
           {/* DISCLAIMER */}
-          <div className="border-t border-b border-default text-accent my-6 px-2 py-4">
+          <div className="border-t border-b border-default text-accent my-8 px-2 py-4">
             <p>
               ⚠ <strong>NB:</strong> Though MiniNFT is an NFT, it does not
               comply with the ERC721 standard.

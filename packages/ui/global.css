@@ -280,7 +280,6 @@ body {
   }
 
   .btn-ghost:hover {
-    border-color: color-mix(in oklab, var(--border-default) 160%, transparent);
     background: color-mix(in oklab, var(--bg-surface) 120%, black);
   }
 

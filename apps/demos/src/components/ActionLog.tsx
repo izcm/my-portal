@@ -17,7 +17,7 @@ export const ActionLog = ({ logs }: ActionLogProps) => {
       className="
         h-40 w-80 bg-black/30
         text-sm text-start 
-        border border-soft rounded-lg 
+        border border-default rounded-lg 
         overflow-y-auto overflow-x-hidden p-2
         "
     >

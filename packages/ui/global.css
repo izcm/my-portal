@@ -20,9 +20,9 @@
   --color-accent-weak: var(--accent-weak);
 
   /* RAW PALETTE */
-  --color-pink: #ff5f9c;   /* hotter, cleaner magenta-pink — vivid but not harsh */
-  --color-green: #37ee7b;  /* bright cyber-mint green with more light energy */
-  --color-mango: #ff9a3c;  /* juicy orange-mango that glows without going neon */
+  --color-pink: #ff5f9c;   
+  --color-green: #37ee7b;  
+  --color-mango: #ff9a3c;  
 
   --color-nebula: #05060d;
   --color-obsidian-indigo: #0b0f1e;
@@ -38,24 +38,24 @@
 :root[data-theme="light-cosmic"] {
   color-scheme: light;
 
-  /* backgrounds — lighter, gentle indigo wash */
-  --bg-primary: #dfe1ff;      /* pastel indigo canvas */
-  --bg-secondary: #e8e9ff;    /* slightly cooler lavender */
-  --bg-surface: #f5f5ff;      /* near white surface with a blue tint */
+  --bg-primary: #dfe1ff;      
+  --bg-secondary: #e8e9ff;    
+  --bg-surface: #f5f5ff;     
 
   --bg-muted: rgba(94, 107, 255, 0.06);
 
-  /* text — dark ink but soft */
   --text-primary: #1a1440;
   --text-muted: rgba(26, 20, 64, 0.6);
 
-  /* borders — faint periwinkle edges */
   --border-default: rgba(94, 107, 255, 0.20);
   --border-soft: rgba(94, 107, 255, 0.12);
 
-  /* accents — radiant but balanced */
   --accent: #5e6bff;
   --accent-weak: rgba(80, 100, 255, 0.18);
+
+  --accent-pink: #ff69b4;  
+  --accent-mango: #ffb347; 
+  --accent-green: #42ff9a; 
 
   --panel-shadow: 0 0 30px rgba(94, 107, 255, 0.18);
 
@@ -67,6 +67,47 @@
     #e0e3ff 60%,
     #d7daff 80%,
     #e3e5ff 100%
+  );
+}
+
+/* -------------------------------------------------
+   CYBER VOID THEME (refined cosmic variant)
+---------------------------------------------------*/
+:root[data-theme="cyber-void"] {
+  color-scheme: dark;
+
+  --bg-primary: #02030a;  
+  --bg-secondary: #090b1d; 
+  --bg-surface: #0e1030;  
+  --bg-muted: rgba(140, 160, 255, 0.09); 
+
+  --text-primary: rgba(255, 255, 255, 0.96);
+  --text-muted: rgba(210, 220, 255, 0.72);
+
+  --border-default: rgba(130, 150, 255, 0.35);
+  --border-soft: rgba(130, 150, 255, 0.18);
+
+  --accent: #6d75ff;
+  --accent-weak: rgba(109, 117, 255, 0.24);
+  --accent-pink: #ff69b4;  
+  --accent-mango: #ffb347; 
+  --accent-green: #42ff9a; 
+
+  /* 🌌 gradient / panel glow */
+  --panel-shadow:
+    0 0 20px rgba(109, 117, 255, 0.22),
+    0 0 60px rgba(109, 117, 255, 0.16),
+    0 0 140px rgba(77, 217, 255, 0.12);
+
+  /* 🎨 gradient background — contrasty void flow */
+  --bg-hero: linear-gradient(
+    135deg,
+    #000000 0%,
+    #01030a 15%,
+    #04071b 40%,
+    #080d3a 65%,
+    #0e144f 85%,
+    #04081a 100%
   );
 }
 
@@ -91,9 +132,14 @@
   --accent-weak: rgba(109, 117, 255, 0.14);
   --accent-cyan: #4dd9ff; /* optional subtle companion accent */
 
+  --accent-pink: #ff69b4;  
+  --accent-mango: #ffb347; 
+  --accent-green: #42ff9a; 
+
   --panel-shadow: 0 0 60px rgba(80, 100, 255, 0.18),
                   0 0 120px rgba(77, 217, 255, 0.08);
 
+                  
   --bg-hero: linear-gradient(
     135deg,
     #01030a 0%,

@@ -38,14 +38,19 @@ export const DemoLayout = ({
       <main className="w-full max-w-3xl flex flex-col items-center gap-6">
         <h1 className="text-2xl font-semibold glow">{title}</h1>
         <p className="text-dim text-sm">{desc}</p>
-
+        
         {/* DEMO CONTAINER */}
-        <div className="w-full border border-soft rounded-xl p-6 bg-black/40 backdrop-blur-sm">
+        <div className="w-full border border-default rounded-xl p-6 bg-black/30 backdrop-blur-sm">
           {children}
         </div>
 
         {/* ACTION BUTTONS */}
-        <div className="flex flex-wrap gap-3 mt-4 text-sm">
+        <div
+          className="
+            flex flex-col sm:flex-row flex-wrap gap-3 
+            sm:w-auto w-1/2 mt-4 text-sm
+            "
+        >
           {codeUrl && (
             <a className="btn btn-ghost" href={codeUrl} target="_blank">
               🔍 View Code

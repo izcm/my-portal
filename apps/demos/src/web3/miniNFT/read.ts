@@ -8,17 +8,6 @@ import { mini721ContractConfig } from "../contracts";
 const svgToBase64 = (svg: string): string =>
   `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 
-export const useSvg = () => {
-  const { data } = useReadContract({
-    ...mini721ContractConfig,
-    functionName: "svg",
-  });
-
-  if (typeof data !== "string") return null;
-  // encode to Base64 HERE
-  return svgToBase64(data);
-};
-
 export const useTotalSupply = () => {
   const {
     data: totalSupply,
@@ -44,6 +33,23 @@ export const useTotalSupply = () => {
     isPending,
     error,
   };
+};
+
+export const readSVG = async (tokenId: bigint) => {
+  try {
+    const svgRaw = await readContract(config, {
+      ...mini721ContractConfig,
+      functionName: "svg",
+    } as any); // typescript complains about auth list
+
+    if (typeof svgRaw !== "string") return null;
+
+    // encode to Base64
+    return svgToBase64(svgRaw);
+  } catch (err) {
+    console.error("❌ Failed to read SVG:", err);
+    return null;
+  }
 };
 
 export const readOwnerOf = async (tokenId: bigint) => {
@@ -77,8 +83,12 @@ export const readBalanceOf = async (address: string) => {
 };
 
 export const fetchMyTokens = async (address: `0x${string}`) => {
-  const supply = await useTotalSupply().readTotalSupply();
-  const total = Number(supply.data || 0);
+  const supply = await readContract(config, {
+    ...mini721ContractConfig,
+    functionName: "totalSupply",
+  } as any); // as any to skip auth list
+
+  const total = Number(supply || 0);
   const myTokens: bigint[] = [];
 
   for (let i = 1; i <= total; i++) {

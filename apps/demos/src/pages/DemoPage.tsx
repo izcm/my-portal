@@ -3,12 +3,15 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
+import { isAddress } from "viem";
+
 // local
 import {
-  useSvg,
   useTotalSupply,
   readOwnerOf,
   readBalanceOf,
+  fetchMyTokens,
+  readSVG,
 } from "../web3/miniNFT/read";
 import { useMint } from "../web3/miniNFT/write";
 
@@ -45,7 +48,42 @@ export const DemoPage = () => {
     return <p className="text-center mt-10">Please connect a wallet first.</p>;
   }
 
-  const [index, setIndex] = useState(0);
+  /* ACTIVE USER'S NFTs */
+  const [myNFTs, setMyNFTs] = useState<UI_NFT[]>([]);
+
+  useEffect(() => {
+    if (!address) {
+      setMyNFTs([]); // clear NFTs when wallet disconnects
+      return;
+    }
+
+    const loadNFTs = async () => {
+      try {
+        const tokens = await fetchMyTokens(address);
+
+        const ownedNFTs = await Promise.all(
+          tokens.map(async (id) => {
+            const svg = await readSVG(id);
+            return {
+              label: `Token #${id}`,
+              svg: svg || "",
+              owned: true,
+            } as UI_NFT;
+          }),
+        );
+
+        setMyNFTs(ownedNFTs);
+        console.log("✅ NFTs loaded:", ownedNFTs);
+      } catch (err) {
+        console.error("❌ Failed to load NFTs:", err);
+      }
+    };
+
+    loadNFTs();
+  }, [address]);
+
+  const [indexNFTMint, setIndexNFTMint] = useState(0); // for modal nft carosel
+  const [indexActiveNFT, setIndexActiveNFT] = useState(0);
 
   // WRITE TO CONTARCT STUFF
   const { mint, status } = useMint(address);
@@ -56,7 +94,7 @@ export const DemoPage = () => {
 
   const [modal, setModal] = useState<{
     open: boolean;
-    action: "ownerOf" | "balanceOf" | "mint" | null;
+    action: "ownerOf" | "balanceOf" | "mint" | "transfer" | null;
   }>({
     open: false,
     action: null,
@@ -80,10 +118,25 @@ export const DemoPage = () => {
       button: "Read Owner",
       action: async (input: string) => {
         const owner = await readOwnerOf(BigInt(input));
-        return `🔍 Owner = ${owner}`;
+
+        const short =
+          owner && owner.length > 10
+            ? `${owner.slice(0, 6)}…${owner.slice(-4)}`
+            : owner;
+
+        return `🔍 Token #${input} Owner = ${short}`;
       },
     },
     balanceOf: {
+      label: "Balance of which address?",
+      placeholder: "address",
+      button: "Read Balance",
+      action: async (input: string) => {
+        const balance = await readBalanceOf(input as `0x${string}`);
+        return `🔢 Balance = ${balance}`;
+      },
+    },
+    transfer: {
       label: "Balance of which address?",
       placeholder: "address",
       button: "Read Balance",
@@ -96,14 +149,26 @@ export const DemoPage = () => {
 
   const mode = modal.action ? actions[modal.action] : null;
 
+  // input validation
+  const validInput = (() => {
+    if (modal.action === "balanceOf" || modal.action === "transfer") {
+      return isAddress(readArgument);
+    }
+    if (modal.action === "ownerOf") {
+      return /^\d+$/.test(readArgument);
+    }
+    if (modal.action === "mint") {
+      return isAddress(readArgument);
+    }
+    return false;
+  })();
+
   // OUTPUTS
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
   const pushLog = (entry: LogEntry) => {
     setLogs((prev) => [...prev, entry]);
   };
-
-  const svg = useSvg();
 
   return (
     <>
@@ -164,19 +229,18 @@ export const DemoPage = () => {
           {/* NFT Preview*/}
           <div
             className="
-              w-80 h-64
-              grid place-items-center
-              border border-soft rounded-lg
+              w-80 h-80
+              border border-default rounded-lg
               bg-black/30
             "
           >
-            {!svg ? (
+            {myNFTs.length === 0 ? (
               <p>Loading SVG...</p>
             ) : (
-              <div className="flex flex-col justify-center items-center">
-                <img width={160} src={svg} alt="NFT preview" />
+              <div className="flex flex-col justify-center items-center gap-4">
+                <NFTCarosel items={myNFTs} index={indexActiveNFT} onChange={setIndexActiveNFT} />
                 <div className="flex flex-col gap-1 text-md">
-                  <span>Token #3 • Owner: 0x1234…abcd</span>
+                  {/* <span>Token #3 • Owner: 0x1234…abcd</span> */}
                   <div className="flex gap-2">
                     <button className="token-action text-pink">
                       [ Transfer ]
@@ -196,7 +260,7 @@ export const DemoPage = () => {
           {/* About & Specs */}
           <div className="flex flex-col gap-4 w-1/2 min-w-[320px] text-start">
             {/* Seperator */}
-            <div className="h-[1px] bg-secondary" />
+            <div className="h-[1px] border border-soft" />
 
             {/* About */}
             <h3 className="font-semibold">About MiniNFT</h3>
@@ -213,7 +277,7 @@ export const DemoPage = () => {
             </ul>
 
             {/* Seperator */}
-            <div className="h-[1px] bg-secondary" />
+            <div className="h-[1px] border border-soft" />
 
             {/* Technical Specifications */}
             <h3 className="font-semibold">Spec Sheet</h3>
@@ -230,7 +294,7 @@ export const DemoPage = () => {
           </div>
 
           {/* DISCLAIMER */}
-          <div className="border-t border-b border-soft text-accent my-6 px-2 py-4">
+          <div className="border-t border-b border-default text-accent my-6 px-2 py-4">
             <p>
               ⚠ <strong>NB:</strong> Though MiniNFT is an NFT, it does not
               comply with the ERC721 standard.
@@ -243,7 +307,7 @@ export const DemoPage = () => {
       {/* MODAL */}
       <Modal isOpen={showMintModal} onClose={() => setShowMintModal(false)}>
         <div className="flex flex-col items-center gap-4">
-          <NFTCarosel items={previewNFTs} index={index} onChange={setIndex} />
+          <NFTCarosel items={previewNFTs} index={indexNFTMint} onChange={setIndexNFTMint} />
           <button
             className="btn btn-primary mt-3"
             onClick={() => mint(address)}
@@ -261,8 +325,8 @@ export const DemoPage = () => {
             <div className="flex flex-col items-center gap-4">
               <NFTCarosel
                 items={previewNFTs}
-                index={index}
-                onChange={setIndex}
+                index={indexNFTMint}
+                onChange={setIndexNFTMint}
               />
               <button
                 className="btn btn-primary mt-3"
@@ -280,12 +344,13 @@ export const DemoPage = () => {
                   onChange={(e) => setReadArgument(e.target.value)}
                   className="
                   input input-primary 
-                  border border-soft rounded-lg p-1
+                  border border-default rounded-lg p-1
                   bg-black/30
                 "
                 />
               </div>
               <button
+                disabled={!validInput}
                 onClick={async () => {
                   setModal({ open: false, action: null });
                   try {
@@ -298,7 +363,7 @@ export const DemoPage = () => {
                     });
                   }
                 }}
-                className="btn btn-secondary"
+                className={`btn btn-secondary ${!validInput ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {mode.button}
               </button>

@@ -212,6 +212,7 @@ body {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     padding: 0.7rem 1.05rem;
     font-weight: 600;
@@ -276,7 +277,7 @@ body {
 
   .btn-ghost {
     border-color: var(--border-default);
-    background: var(--bg-surface);
+    background: transparent;
   }
 
   .btn-ghost:hover {

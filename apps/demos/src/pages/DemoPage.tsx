@@ -83,7 +83,7 @@ export const DemoPage = () => {
 
   const [indexActiveNFT, setIndexActiveNFT] = useState(0);
 
-  const { mint, status } = useMint(wallet);
+  const { mint, writeStatus, isConfirming } = useMint(wallet);
   const { readTotalSupply } = useTotalSupply();
 
   const [modal, setModal] = useState<{
@@ -94,25 +94,45 @@ export const DemoPage = () => {
     action: null,
   });
 
-  
   const [color, setColor] = useState("#ffffff");
-  console.log(BigInt("0x" + color.slice(1)));
   const [readArgument, setReadArgument] = useState("");
 
   const actions = {
     mint: {
       label: "Mint to which address?",
       placeholder: "address",
-      button: "Mint",
-      action: async (input: string) => {
-        mint(input as `0x${string}`);
-        return `⛏ Minted to ${input}`;
+      btnTxtPrimary: "⛏ Mint New",
+      btnTxtSecondary: "Mint",
+      topBar: true,
+      modal: true,
+      action: async () => {
+        const colorNumber = BigInt("0x" + color.slice(1));
+
+        mint(wallet as `0x${string}`, colorNumber);
+        return `⛏ Minted to ${wallet}`;
+      },
+    },
+    totalSupply: {
+      label: "Mint to which address?",
+      placeholder: "address",
+      btnTxtPrimary: " 📊 Supply",
+      topBar: true,
+      modal: false,
+      action: async () => {
+        const supply = await readTotalSupply();
+        pushLog({
+          type: "info",
+          message: `📊 Total Supply = ${supply.data}`,
+        });
       },
     },
     ownerOf: {
       label: "Owner of which token?",
       placeholder: "tokenId",
-      button: "Read Owner",
+      btnTxtPrimary: "🔍 Owner",
+      btnTxtSecondary: "Read Owner",
+      topBar: true,
+      modal: true,
       action: async (input: string) => {
         const owner = await readOwnerOf(BigInt(input));
 
@@ -127,7 +147,10 @@ export const DemoPage = () => {
     balanceOf: {
       label: "Balance of which address?",
       placeholder: "address",
-      button: "Read Balance",
+      btnTxtPrimary: "🔢 Balances",
+      btnTxtSecondary: "Read Balance",
+      topBar: true,
+      modal: true,
       action: async (input: string) => {
         const balance = await readBalanceOf(input as `0x${string}`);
         return `🔢 Balance = ${balance}`;
@@ -136,7 +159,10 @@ export const DemoPage = () => {
     transfer: {
       label: "Balance of which address?",
       placeholder: "address",
-      button: "Read Balance",
+      btnTxtPrimary: "Change NFT Color",
+      btnTxtSecondary: "Update Color",
+      topBar: false,
+      modal: true,
       action: async (input: string) => {
         const balance = await readBalanceOf(input as `0x${string}`);
         return `🔢 Balance = ${balance}`;
@@ -153,9 +179,6 @@ export const DemoPage = () => {
     }
     if (modal.action === "ownerOf") {
       return /^\d+$/.test(readArgument);
-    }
-    if (modal.action === "mint") {
-      return isAddress(readArgument);
     }
     return false;
   })();
@@ -179,50 +202,27 @@ export const DemoPage = () => {
         <div className="flex flex-col items-center gap-6">
           {/* Actinon Buttons */}
           <div className="flex flex-row items-center gap-3 ">
-            {/* PRIMARY MINT BUTTON */}
-            <button
-              disabled={status === "pending"}
-              onClick={() => {
-                setModal({ open: true, action: "mint" });
-              }}
-              className="btn btn-primary flex items-center gap-2"
-            >
-              ⛏ Mint New
-            </button>
-
-            {/* TOTAL SUPPLY */}
-            <button
-              onClick={async () => {
-                const supply = await readTotalSupply();
-                pushLog({
-                  type: "info",
-                  message: `📊 Total Supply = ${supply.data}`,
-                });
-              }}
-              className="btn btn-secondary flex items-center gap-2"
-            >
-              📊 Supply
-            </button>
-
-            {/* OWNER OF */}
-            <button
-              onClick={() => {
-                setModal({ open: true, action: "ownerOf" });
-              }}
-              className="btn btn-secondary flex items-center gap-2"
-            >
-              🔍 Owner
-            </button>
-
-            {/* BALANCE OF */}
-            <button
-              onClick={() => {
-                setModal({ open: true, action: "balanceOf" });
-              }}
-              className="btn btn-secondary flex items-center gap-2"
-            >
-              🔢 Balances
-            </button>
+            {Object.entries(actions).filter(([_, action]) => action.topBar)
+            .map(([key, action]) => (
+              <button
+                key={key}
+                disabled={status === "pending"}
+                onClick={ async () => {
+                  if(action.modal) {
+                    setModal({ open: true, action: key as any });
+                  } else {
+                    await action.action();
+                  }
+                  
+                }}
+                className={`
+                  btn ${key === "mint" ? "btn-primary" : "btn-secondary"} 
+                  flex items-center gap-2
+                `}
+              >
+                {action.btnTxtPrimary}
+              </button>
+            ))}
           </div>
 
           {/* NFT Preview*/}
@@ -344,19 +344,34 @@ export const DemoPage = () => {
                 <div
                   className="h-54 w-54 bg-black/30 rounded-lg"
                   dangerouslySetInnerHTML={{
-                    __html: blushSvgText.replace(/stroke='[^']*'/g, `stroke='${color}'`)
+                    __html: blushSvgText.replace(
+                      /stroke='[^']*'/g,
+                      `stroke='${color}'`,
+                    ),
                   }}
                 />
 
                 <div className="flex flex-col gap-2">
                   <button
                     className="btn btn-primary"
-                    onClick={() => mint(wallet)}
+                    onClick={async () => {
+                      try {
+                        const msg = await actions.mint.action();
+                        pushLog({ type: "success", message: msg });
+                        setModal({ open: false, action: null });
+                      } catch (err) {
+                        pushLog({ type: "error", message: "Mint failed." });
+                      }
+                    }}
                   >
                     Mint
                   </button>
-                  <button onClick={ () => setModal({ open: false, action: null })} 
-                  className="btn btn-ghost">Cancel</button>
+                  <button
+                    onClick={() => setModal({ open: false, action: null })}
+                    className="btn btn-ghost"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
               <div className="flex flex-col gap-4">
@@ -396,7 +411,7 @@ export const DemoPage = () => {
                 }}
                 className={`btn btn-secondary ${!validInput ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                {mode.button}
+                {mode.btnTxtSecondary}
               </button>
             </div>
           )}

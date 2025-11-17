@@ -5,13 +5,6 @@ export const mini721ContractConfig = {
   abi: [
     {
       type: "function",
-      name: "svg",
-      stateMutability: "view",
-      inputs: [],
-      outputs: [{ name: "svgData", type: "string" }],
-    },
-    {
-      type: "function",
       name: "totalSupply",
       stateMutability: "view",
       inputs: [],
@@ -31,6 +24,13 @@ export const mini721ContractConfig = {
       inputs: [{ name: "owner", type: "address" }],
       outputs: [{ name: "balance", type: "uint256" }],
     },
+    {
+      type: "function",
+      name: "svg",
+      stateMutability: "view",
+      inputs: [{ name: "tokenId", type: "uint256" }],
+      outputs: [{ name: "svgData", type: "string" }],
+    },
 
     /* WRITE FUNCTIONS */
 
@@ -39,6 +39,36 @@ export const mini721ContractConfig = {
       name: "mint",
       stateMutability: "nonpayable",
       inputs: [{ name: "to", type: "address" }],
+      outputs: [],
+    },
+    {
+      type: "function",
+      name: "mintWithColor",
+      stateMutability: "nonpayable",
+      inputs: [
+        { name: "to", type: "address" },
+        { name: "tokenId", type: "uint256" },
+      ],
+      outputs: [],
+    },
+    {
+      type: "function",
+      name: "transfer",
+      stateMutability: "nonpayable",
+      inputs: [
+        { name: "to", type: "address" },
+        { name: "tokenId", type: "uint256" },
+      ],
+      outputs: [],
+    },
+    {
+      type: "function",
+      name: "setColor",
+      stateMutability: "nonpayable",
+      inputs: [
+        { name: "tokenId", type: "uint256" },
+        { name: "rbg", type: "uint256" },
+      ],
       outputs: [],
     },
   ],

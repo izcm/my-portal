@@ -1,29 +1,33 @@
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { mini721ContractConfig } from "../contracts";
+import { mini721ContractConfig } from "./abi";
 
 export const useMint = (sender: string) => {
-  const { data: txHash, writeContract, status } = useWriteContract();
+  const {
+    data: txHash,
+    writeContract,
+    status: writeStatus,
+  } = useWriteContract();
 
   const {
+    isLoading: isConfirming,
     isSuccess,
-    isError, // revert on chain
-    error: txError, // error msg
+    isError,
   } = useWaitForTransactionReceipt({ hash: txHash });
 
-  const mint = (to: `0x${string}`) =>
+  const mint = (to: `0x${string}`, color: bigint) =>
     writeContract({
       ...mini721ContractConfig,
-      functionName: "mint",
-      args: [to],
+      functionName: "mintWithColor",
+      args: [to, color],
       account: sender,
     });
 
   return {
     mint,
     txHash,
-    status,
-    isSuccess,
-    isError,
-    txError,
+    writeStatus, // pending wallet confirm
+    isConfirming, // waiting for mining
+    isSuccess, // mined
+    isError, // reverted
   };
 };

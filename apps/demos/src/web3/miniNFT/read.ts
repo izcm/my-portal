@@ -3,7 +3,7 @@ import { readContract } from "wagmi/actions";
 
 // local
 import { wagmiConfig as config } from "../config";
-import { mini721ContractConfig } from "../contracts";
+import { mini721ContractConfig } from "./abi";
 
 const svgToBase64 = (svg: string): string =>
   `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
@@ -40,6 +40,7 @@ export const readSVG = async (tokenId: bigint) => {
     const svgRaw = await readContract(config, {
       ...mini721ContractConfig,
       functionName: "svg",
+      args: [tokenId],
     } as any); // typescript complains about auth list
 
     if (typeof svgRaw !== "string") return null;

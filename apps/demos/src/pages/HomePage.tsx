@@ -24,7 +24,6 @@ export const HomePage = () => {
           </Link>
         </div>
       </nav>
-      <div className="h-[2px] w-full bg-seperator"></div>
 
       {/* DEMO LIST */}
       <main className="flex flex-col grow items-center py-10">

@@ -1,7 +1,9 @@
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { mini721ContractConfig } from "./abi";
 
-export const useMint = (sender: string) => {
+import { useTx } from "../helpers/useTx";
+
+export const useMint_old = (sender: string) => {
   const {
     data: txHash,
     writeContract,
@@ -30,4 +32,17 @@ export const useMint = (sender: string) => {
     isSuccess, // mined
     isError, // reverted
   };
+};
+
+export const useMint = (sender: string) => {
+  const tx = useTx();
+  const mint = (to: `0x${string}`, color: bigint) => {
+    tx.send({
+      ...mini721ContractConfig,
+      functionName: "mintWithColor",
+      args: [to, color],
+      account: sender,
+    });
+  };
+  return { ...tx, mint };
 };

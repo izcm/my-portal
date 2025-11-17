@@ -21,8 +21,8 @@ import { DemoLayout } from "../components/layouts/DemoLayout";
 import { NFTCarosel } from "../components/NFTCarosel";
 import { Modal } from "../components/Modal";
 import { ColorWheel } from "../components/ColorWheel";
-import blushSvgText from "/icons/miniNFT/BLUSH.svg?raw";
 
+import blushSvgText from "/icons/miniNFT/BLUSH.svg?raw";
 import type { UI_NFT } from "../data/UI_NFT";
 
 export type LogEntry = {
@@ -83,9 +83,7 @@ export const DemoPage = () => {
 
   const [indexActiveNFT, setIndexActiveNFT] = useState(0);
 
-  const { mint, writeStatus, isConfirming } = useMint(wallet);
-  const { readTotalSupply } = useTotalSupply();
-
+  // modal stuff
   const [modal, setModal] = useState<{
     open: boolean;
     action: "ownerOf" | "balanceOf" | "mint" | "transfer" | null;
@@ -97,6 +95,10 @@ export const DemoPage = () => {
   const [color, setColor] = useState("#ffffff");
   const [readArgument, setReadArgument] = useState("");
 
+  // external calls
+  const { readTotalSupply } = useTotalSupply();
+  const mintTx = useMint(wallet);
+
   const actions = {
     mint: {
       label: "Mint to which address?",
@@ -107,8 +109,8 @@ export const DemoPage = () => {
       modal: true,
       action: async () => {
         const colorNumber = BigInt("0x" + color.slice(1));
+        mintTx.mint(wallet as `0x${string}`, colorNumber);
 
-        mint(wallet as `0x${string}`, colorNumber);
         return `⛏ Minted to ${wallet}`;
       },
     },
@@ -170,8 +172,6 @@ export const DemoPage = () => {
     },
   } as const;
 
-  const mode = modal.action ? actions[modal.action] : null;
-
   // input validation
   const validInput = (() => {
     if (modal.action === "balanceOf" || modal.action === "transfer") {
@@ -190,6 +190,36 @@ export const DemoPage = () => {
     setLogs((prev) => [...prev, entry]);
   };
 
+  const mode = modal.action ? actions[modal.action] : null;
+
+  // external calls lifecycle trackers
+  const txStatus = mintTx.status;
+
+  useEffect(() => {
+    if (txStatus === "success") {
+      pushLog({ type: "success", message: "🎉 Transaction succeeded!" });
+      setModal({ open: false, action: null });
+    }
+
+    if (txStatus === "reverted") {
+      pushLog({ type: "error", message: "❌ Transaction failed" });
+      setModal({ open: false, action: null });
+    }
+  }, [txStatus]);
+
+  const txMessage =
+    txStatus === "wallet"
+      ? "🔐 Waiting for wallet..."
+      : txStatus === "sent"
+        ? "🚀 Transaction sent..."
+        : txStatus === "mining"
+          ? "⛏ Mining on chain..."
+          : txStatus === "success"
+            ? "✅ Success!"
+            : txStatus === "reverted"
+              ? "❌ Transaction failed"
+              : "";
+
   return (
     <>
       <DemoLayout
@@ -202,27 +232,27 @@ export const DemoPage = () => {
         <div className="flex flex-col items-center gap-6">
           {/* Actinon Buttons */}
           <div className="flex flex-row items-center gap-3 ">
-            {Object.entries(actions).filter(([_, action]) => action.topBar)
-            .map(([key, action]) => (
-              <button
-                key={key}
-                disabled={status === "pending"}
-                onClick={ async () => {
-                  if(action.modal) {
-                    setModal({ open: true, action: key as any });
-                  } else {
-                    await action.action();
-                  }
-                  
-                }}
-                className={`
+            {Object.entries(actions)
+              .filter(([_, action]) => action.topBar)
+              .map(([key, action]) => (
+                <button
+                  key={key}
+                  disabled={status === "pending"}
+                  onClick={async () => {
+                    if (action.modal) {
+                      setModal({ open: true, action: key as any });
+                    } else {
+                      await action.action();
+                    }
+                  }}
+                  className={`
                   btn ${key === "mint" ? "btn-primary" : "btn-secondary"} 
                   flex items-center gap-2
                 `}
-              >
-                {action.btnTxtPrimary}
-              </button>
-            ))}
+                >
+                  {action.btnTxtPrimary}
+                </button>
+              ))}
           </div>
 
           {/* NFT Preview*/}
@@ -334,6 +364,7 @@ export const DemoPage = () => {
 
       {/* MODAL */}
       {mode && (
+        /* MINT */
         <Modal
           isOpen={modal.open}
           onClose={() => setModal({ open: false, action: null })}
@@ -342,7 +373,7 @@ export const DemoPage = () => {
             <div className="flex flex items-center gap-4 p-2">
               <div className="flex flex-col mr-8 gap-4">
                 <div
-                  className="h-54 w-54 bg-black/30 rounded-lg"
+                  className="w-50 bg-black/30 rounded-lg"
                   dangerouslySetInnerHTML={{
                     __html: blushSvgText.replace(
                       /stroke='[^']*'/g,
@@ -354,14 +385,8 @@ export const DemoPage = () => {
                 <div className="flex flex-col gap-2">
                   <button
                     className="btn btn-primary"
-                    onClick={async () => {
-                      try {
-                        const msg = await actions.mint.action();
-                        pushLog({ type: "success", message: msg });
-                        setModal({ open: false, action: null });
-                      } catch (err) {
-                        pushLog({ type: "error", message: "Mint failed." });
-                      }
+                    onClick={() => {
+                      actions.mint.action();
                     }}
                   >
                     Mint
@@ -383,6 +408,7 @@ export const DemoPage = () => {
               </div>
             </div>
           ) : (
+            /* OTHER */
             <div className="flex flex-col items-center gap-4 p-2">
               <div className="flex flex-col gap-4 self-stretch mx-4 my-2">
                 <span>{mode.label}</span>
@@ -416,6 +442,13 @@ export const DemoPage = () => {
             </div>
           )}
         </Modal>
+      )}
+      {(txStatus === "wallet" || txStatus === "mining") && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999]">
+          <div className="text-white text-lg font-mono animate-pulse">
+            {txMessage}
+          </div>
+        </div>
       )}
     </>
   );

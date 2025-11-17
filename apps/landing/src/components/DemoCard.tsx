@@ -15,8 +15,8 @@ export const DemoCard = ({ title, desc, id, img }: DemoCardProps) => {
         demo-card group
         relative flex flex-col items-center
         p-6 rounded-xl
-        bg-[rgba(5,7,16,0.7)]
-        border border-[rgba(120,130,255,0.14)]
+        bg-surface/20
+        border border-soft
         shadow-[0_0_18px_rgba(0,0,0,0.25)]
         backdrop-blur-2xl
         cursor-pointer

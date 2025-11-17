@@ -7,12 +7,6 @@
     transform 240ms ease;
 }
 
-.demo-card:hover {
-  transform: scale(1.02);
-  border-color: rgba(170, 180, 255, 0.28);
-  box-shadow: 0 0 28px rgba(85, 120, 200, 0.26);
-}
-
 /* Tag fade */
 .demo-card__tag {
   position: absolute;
@@ -26,11 +20,6 @@
   transition:
     opacity 260ms ease,
     transform 260ms ease;
-}
-
-.demo-card:hover .demo-card__tag {
-  opacity: 0;
-  transform: translateY(-3px);
 }
 
 /* Backlight */
@@ -47,19 +36,6 @@
   transition: opacity 320ms ease;
 }
 
-.demo-card:hover .demo-card__backlight {
-  opacity: 0.55;
-}
-
-/* Icon scale */
-.demo-card__icon {
-  transition: transform 260ms ease;
-}
-
-.demo-card:hover .demo-card__icon {
-  transform: scale(1.07);
-}
-
 /* Button fade */
 .demo-card__btn {
   opacity: 0;
@@ -68,15 +44,29 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
-.demo-card:hover .demo-card__btn {
-  opacity: 1;
-}
-
-.demo-card__btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(160, 170, 255, 0.32);
-}
-
 .demo-card__btn:active {
   transform: scale(0.97);
+}
+
+.demo-card:hover {
+  transform: scale(1.008);
+  border-color: rgba(160, 170, 255, 0.18);
+  box-shadow: 0 0 12px rgba(50, 70, 120, 0.18);
+}
+
+.demo-card:hover .demo-card__backlight {
+  opacity: 0.25;
+}
+
+.demo-card:hover .demo-card__icon {
+  transform: scale(1.02);
+}
+
+.demo-card:hover .demo-card__tag {
+  opacity: 0.35;
+  transform: translateY(-1px);
+}
+
+.demo-card:hover .demo-card__btn {
+  opacity: 0.75;
 }

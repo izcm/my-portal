@@ -30,10 +30,62 @@
   --color-cryo-nebula: #030611;
   --color-absolute-ice: #02040c;
   --color-frozen-void: #01030a;
+
+  /* Typography scale (subtle, premium) */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica,
+    Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  --text-hero: clamp(1.75rem, 1.4rem + 1.6vw, 3.1rem);
+  --text-h2: clamp(1.25rem, 1.1rem + 0.8vw, 1.875rem);
 }
 
 /* -------------------------------------------------
-   DARK THEME (default)
+   CYBER VOID THEME (default)
+---------------------------------------------------*/
+:root[data-theme="cyber-void"] {
+  color-scheme: dark;
+
+  --bg-primary: #02030a;  
+  --bg-secondary: #090b1d; 
+  --bg-surface: #06071a;  
+  --bg-muted: rgba(140, 160, 255, 0.09); 
+
+  --text-primary: rgba(245, 247, 255, 0.94);
+  --text-muted: rgba(210, 220, 255, 0.72);
+
+  --border-default: rgba(130, 150, 255, 0.35);
+  --border-soft: rgba(130, 150, 255, 0.18);
+
+  --accent: #6d75ff;
+  --accent-weak: rgba(109, 117, 255, 0.24);
+  --accent-pink: #ff69b4;  
+  --accent-mango: #ffb347; 
+  --accent-green: #42ff9a; 
+
+  /* 🌌 gradient / panel glow */
+  --panel-shadow:
+    0 0 20px rgba(109, 117, 255, 0.22),
+    0 0 60px rgba(109, 117, 255, 0.16),
+    0 0 140px rgba(77, 217, 255, 0.12);
+
+  /* 🎨 gradient background — contrasty void flow */
+  --bg-hero: linear-gradient(
+    135deg,
+    #000000 0%,
+    #01030a 15%,
+    #04071b 40%,
+    #080d3a 65%,
+    #0e144f 85%,
+    #04081a 100%
+  );
+}
+
+/* -------------------------------------------------
+   LIGHT THEME 
 ---------------------------------------------------*/
 :root[data-theme="light-cosmic"] {
   color-scheme: light;
@@ -67,47 +119,6 @@
     #e0e3ff 60%,
     #d7daff 80%,
     #e3e5ff 100%
-  );
-}
-
-/* -------------------------------------------------
-   CYBER VOID THEME (refined cosmic variant)
----------------------------------------------------*/
-:root[data-theme="cyber-void"] {
-  color-scheme: dark;
-
-  --bg-primary: #02030a;  
-  --bg-secondary: #090b1d; 
-  --bg-surface: #0e1030;  
-  --bg-muted: rgba(140, 160, 255, 0.09); 
-
-  --text-primary: rgba(255, 255, 255, 0.96);
-  --text-muted: rgba(210, 220, 255, 0.72);
-
-  --border-default: rgba(130, 150, 255, 0.35);
-  --border-soft: rgba(130, 150, 255, 0.18);
-
-  --accent: #6d75ff;
-  --accent-weak: rgba(109, 117, 255, 0.24);
-  --accent-pink: #ff69b4;  
-  --accent-mango: #ffb347; 
-  --accent-green: #42ff9a; 
-
-  /* 🌌 gradient / panel glow */
-  --panel-shadow:
-    0 0 20px rgba(109, 117, 255, 0.22),
-    0 0 60px rgba(109, 117, 255, 0.16),
-    0 0 140px rgba(77, 217, 255, 0.12);
-
-  /* 🎨 gradient background — contrasty void flow */
-  --bg-hero: linear-gradient(
-    135deg,
-    #000000 0%,
-    #01030a 15%,
-    #04071b 40%,
-    #080d3a 65%,
-    #0e144f 85%,
-    #04081a 100%
   );
 }
 
@@ -208,6 +219,17 @@ body {
    ✨ REUSABLE COMPONENT STYLES ✨
 ---------------------------------------------------*/
 @layer components {
+   .hero-title {
+    font-size: var(--text-hero);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+
+  .hero-kicker {
+    color: var(--color-text-muted);
+  }
+
   .btn {
     cursor: pointer;
     display: inline-flex;

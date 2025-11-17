@@ -22,10 +22,9 @@ const demos = [
   },
 ] as const;
 
-
 export default function App() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* NAVBAR */}
       <div>
         <nav
@@ -33,7 +32,7 @@ export default function App() {
             navbar
             flex items-center justify-between 
             h-16 px-4 
-            border-b border-neutral-800
+            border-b border-default
           "
         >
           <span className="font-bold text-lg hero-kicker">A2Z Blocks</span>
@@ -46,15 +45,17 @@ export default function App() {
             </a>
           </div>
         </nav>
-        <div className="h-[2px] w-full bg-seperator"></div>
+
+        {/* FIXED SEPARATOR */}
+        <div className="h-[2px] w-full bg-muted"></div>
       </div>
 
       {/* HERO */}
-      <div className="flex flex-col grow">
-        <section className="flex justify-center section--cosmic fade-in">
+      <div className="flex flex-col grow ">
+        <section className="flex justify-center section--cosmic fade-in border-b border-default">
           <div
             className=" 
-              flex flex-col lg:flex-row grow min-h-[500px]
+              flex flex-col lg:flex-row grow min-h-[400px]
               items-center justify-center
               max-w-4xl mt-8 lg:mt-0
             "
@@ -70,31 +71,30 @@ export default function App() {
               {/* BACKLIGHT BEHIND SVG */}
               <div
                 className="
-                pointer-events-none absolute right-[10%] top-1/2 -translate-y-1/2
-                w-[480px] h-[480px] rounded-full opacity-[0.55]
-                bg-[radial-gradient(circle,rgba(60,90,180,0.28),transparent_75%)]
-                blur-[110px]
-              "
+                  pointer-events-none absolute right-[10%] top-1/2 -translate-y-1/2
+                  w-[420px] h-[420px] rounded-full
+                  bg-accent-weak opacity-20
+                  blur-[120px]
+                "
               />
+
               <img
                 src={blockSvg}
                 alt="block visual"
-                className="w-86 inline-block relative z-10"
+                className="w-80 inline-block relative z-10"
               />
             </div>
           </div>
         </section>
 
-        <div className="h-[2px] w-full bg-seperator" />
-
         {/* DEMOS */}
-        <section className="flex flex-col mx-auto max-w-7xl p-10 fade-in">
+        <section className="flex flex-col mx-auto max-w-4xl p-10 fade-in">
           <h2 className="hero-kicker mb-4">Demos</h2>
           <div
             className="
                 grid grid-cols-1 md:grid-cols-3 gap-4
-                border border-subtle rounded-xl p-6
-                bg-black/20 backdrop-blur-sm
+                border border-soft rounded-xl p-6
+                backdrop-blur-sm
               "
           >
             {demos.map((demo) => (
@@ -108,7 +108,7 @@ export default function App() {
       <footer
         className="
           flex flex-col items-center justify-center h-16 gap-1
-          border-t border-neutral-800 text-xs text-neutral-500
+          border-t border-default text-xs text-neutral-500
         "
       >
         <p>© 2025 A2Z Blocks. All rights reserved.</p>

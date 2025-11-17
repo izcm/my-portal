@@ -16,7 +16,7 @@ const demos = [
   },
   {
     id: "onchain-voting",
-    img: "nft",
+    img: "dao",
     title: "On-Chain Voting",
     desc: "Lightweight DAO governance example.",
   },

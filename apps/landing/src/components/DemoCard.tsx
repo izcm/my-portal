@@ -8,7 +8,6 @@ type DemoCardProps = {
 };
 
 export const DemoCard = ({ title, desc, id, img }: DemoCardProps) => {
-  
   return (
     <div
       className="
@@ -44,4 +43,4 @@ export const DemoCard = ({ title, desc, id, img }: DemoCardProps) => {
       </button>
     </div>
   );
-}
+};

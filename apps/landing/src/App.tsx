@@ -48,7 +48,7 @@ export default function App() {
       </div>
 
       <div className="flex flex-col grow ">
-      {/* HERO */}
+        {/* HERO */}
         <section className="flex justify-center section--cosmic fade-in border-b border-default bg-black/10">
           <div
             className=" 

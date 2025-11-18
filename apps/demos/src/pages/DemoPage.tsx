@@ -7,13 +7,13 @@ import { isAddress } from "viem";
 
 // local
 import {
-  useTotalSupply,
+  readTotalSupply,
   readOwnerOf,
   readBalanceOf,
   fetchMyTokens,
   readSVG,
 } from "../web3/miniNFT/read";
-import { useMint } from "../web3/miniNFT/write";
+import { useMint, useTransfer, useSetColor } from "../web3/miniNFT/write";
 
 import { demos } from "../data/demos";
 import { DemoLayout } from "../components/layouts/DemoLayout";
@@ -87,7 +87,7 @@ export const DemoPage = () => {
   // modal stuff
   const [modal, setModal] = useState<{
     open: boolean;
-    action: "ownerOf" | "balanceOf" | "mint" | "transfer" | null;
+    action: "ownerOf" | "balanceOf" | "mint" | "transfer" | "color" | null;
   }>({
     open: false,
     action: null,
@@ -97,13 +97,15 @@ export const DemoPage = () => {
   const [readArgument, setReadArgument] = useState("");
 
   // external calls
-  const { readTotalSupply } = useTotalSupply();
   const mintTx = useMint(wallet);
+  const transferTx = useSetColor(wallet);
+  const setColorTx = useSetColor(wallet);
 
   const actions = {
+    /* WRITE ACTIONS */
     mint: {
       label: "Mint to which address?",
-      placeholder: "address",
+      placeholder: "",
       btnTxtPrimary: "⛏ Mint New",
       btnTxtSecondary: "Mint",
       topBar: true,
@@ -115,6 +117,34 @@ export const DemoPage = () => {
         return `⛏ Minted to ${wallet}`;
       },
     },
+    transfer: {
+      label: "Transfer to what address?",
+      placeholder: "0xabc123",
+      btnTxtPrimary: "Transfer",
+      btnTxtSecondary: "Execute Transfer",
+      topBar: false,
+      modal: true,
+      action: async (input: string) => {
+        const balance = await readBalanceOf(input as `0x${string}`);
+        return `🔢 Balance = ${balance}`;
+      },
+    },
+    color: {
+      label: "Set NFT Color",
+      placeholder: "",
+      btnTxtPrimary: "Change NFT Color",
+      btnTxtSecondary: "Set Color",
+      topBar: false,
+      modal: true,
+      action: async () => {
+        const colorNumber = BigInt("0x" + color.slice(1));
+        setColorTx.setColor(colorNumber, BigInt((indexActiveNFT + 1)));
+
+        return `🖍 New Color #${indexActiveNFT}  = ${color}`;
+      },
+    },
+
+    /* READ ACTIONS */
     totalSupply: {
       label: "Mint to which address?",
       placeholder: "address",
@@ -125,7 +155,7 @@ export const DemoPage = () => {
         const supply = await readTotalSupply();
         pushLog({
           type: "info",
-          message: `📊 Total Supply = ${supply.data}`,
+          message: `📊 Total Supply = ${supply}`,
         });
       },
     },
@@ -149,34 +179,10 @@ export const DemoPage = () => {
     },
     balanceOf: {
       label: "Balance of which address?",
-      placeholder: "address",
+      placeholder: "0xabc123",
       btnTxtPrimary: "🔢 Balances",
       btnTxtSecondary: "Read Balance",
       topBar: true,
-      modal: true,
-      action: async (input: string) => {
-        const balance = await readBalanceOf(input as `0x${string}`);
-        return `🔢 Balance = ${balance}`;
-      },
-    },
-    transfer: {
-      label: "Transfer to what address?",
-      placeholder: "address",
-      btnTxtPrimary: "Transfer",
-      btnTxtSecondary: "Execute Transfer",
-      topBar: false,
-      modal: true,
-      action: async (input: string) => {
-        const balance = await readBalanceOf(input as `0x${string}`);
-        return `🔢 Balance = ${balance}`;
-      },
-    },
-    setColor: {
-      label: "Balance of which address?",
-      placeholder: "address",
-      btnTxtPrimary: "Change NFT Color",
-      btnTxtSecondary: "Set Color",
-      topBar: false,
       modal: true,
       action: async (input: string) => {
         const balance = await readBalanceOf(input as `0x${string}`);
@@ -206,26 +212,14 @@ export const DemoPage = () => {
   };
 
   // external calls lifecycle trackers
-  const txStatus = mintTx.status;
-  const [toast, setToast] = useState(false); // for loading spinner
-
-  useEffect(() => {
-    if (txStatus === "success") {
-      pushLog({ type: "success", message: "🎉 Transaction succeeded!" });
-
-      setTimeout(() => {
-        setModal({ open: false, action: null });
-      }, 2000);
-    }
-
-    if (txStatus === "reverted") {
-      pushLog({ type: "error", message: "❌ Transaction failed" });
-
-      setTimeout(() => {
-        setModal({ open: false, action: null });
-      }, 2000);
-    }
-  }, [txStatus]);
+  const txStatus =
+    modal.action === "mint"
+      ? mintTx.status
+      : modal.action === "color"
+        ? setColorTx.status
+        : modal.action === "transfer"
+          ? transferTx.status
+          : null;
 
   const txMessage =
     txStatus === "wallet"
@@ -239,6 +233,17 @@ export const DemoPage = () => {
             : txStatus === "reverted"
               ? "❌ Transaction failed"
               : "";
+
+  useEffect(() => {
+    console.log(txStatus);
+    if (txStatus === "success") {
+      pushLog({ type: "success", message: "🎉 Transaction succeeded!" });
+    }
+
+    if (txStatus === "reverted") {
+      pushLog({ type: "error", message: "❌ Transaction failed" });
+    }
+  }, [txStatus]);
 
   return (
     <>
@@ -292,14 +297,20 @@ export const DemoPage = () => {
                   index={indexActiveNFT}
                   onChange={setIndexActiveNFT}
                 />
-                <div className="flex flex-col gap-1 text-md">
-                  {/* <span>Token #3 • Owner: 0x1234…abcd</span> */}
-                  <div className="flex gap-2">
-                    <button className="token-action">[ Transfer ]</button>
-                    <button className="token-action">
-                      [ Change NFT Color ]
-                    </button>
-                  </div>
+                <div className="flex gap-1 text-md">
+                  {Object.entries(actions)
+                    .filter(([_, action]) => !action.topBar)
+                    .map(([key, action]) => (
+                      <button
+                        key={key}
+                        onClick={async () => {
+                          setModal({ open: true, action: key as any });
+                        }}
+                        className="token-action"
+                      >
+                        [ {action.btnTxtPrimary} ]
+                      </button>
+                    ))}
                 </div>
               </div>
             )}
@@ -389,15 +400,15 @@ export const DemoPage = () => {
           isOpen={modal.open}
           onClose={() => setModal({ open: false, action: null })}
         >
-          {modal.action === "mint" ? (
+          {modal.action === "mint" || modal.action === "color" ? (
             <div
               className="
-              flex flex items-center gap-4 p-4
+              flex items-center gap-4 p-4 bg-black/10
               "
             >
-              <div className="flex flex-col mr-8 gap-4">
+              <div className="flex flex-col gap-4">
                 <div
-                  className="w-50 bg-black/30 rounded-lg"
+                  className="w-45 bg-black/30 rounded-lg"
                   dangerouslySetInnerHTML={{
                     __html: blushSvgText.replace(
                       /stroke='[^']*'/g,
@@ -409,39 +420,41 @@ export const DemoPage = () => {
                   <button
                     className="btn btn-primary"
                     onClick={() => {
-                      setUiLoading(true);
-                      actions.mint.action();
+                      (mode.action as () => Promise<string>)();
+                      setModal({ open: false, action: null });
                     }}
                   >
-                    Mint
+                    {mode.btnTxtSecondary}
                   </button>
                   <button
-                    onClick={() => setModal({ open: false, action: null })}
+                    onClick={() => {
+                      setModal({ open: false, action: null });
+                    }}
                     className="btn btn-ghost"
                   >
                     Cancel
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col items-center gap-2 w-50 mb-4">
                 <p className="text-muted tracking-wide uppercase mb-2">
                   Choose color
                 </p>
-                <ColorWheel onChange={setColor} size={200} />
+                <ColorWheel onChange={setColor} size={160} />
               </div>
             </div>
           ) : (
             /* OTHER */
-            <div className="flex flex-col items-center gap-4 p-4">
+            <div className="flex flex-col items-center gap-4 p-8">
               <div className="flex flex-col gap-4 self-stretch mx-4 my-2">
                 <span>{mode.label}</span>
                 <input
                   placeholder={mode.placeholder}
                   onChange={(e) => setReadArgument(e.target.value)}
                   className="
-                  border border-default rounded-lg p-1
-                  bg-black/30
-                "
+            border border-default rounded-lg p-1
+            bg-black/30
+          "
                 />
               </div>
               <button

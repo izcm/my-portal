@@ -27,7 +27,7 @@ export const useTransfer = (caller: string) => {
   return { ...tx, transfer };
 };
 
-export const setColor = (caller: string) => {
+export const useSetColor = (caller: string) => {
   const tx = useTx();
   const setColor = (tokenId: bigint, rgb: bigint) => {
     tx.send({

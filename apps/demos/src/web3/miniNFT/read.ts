@@ -2,43 +2,29 @@ import { useReadContract } from "wagmi";
 import { readContract } from "wagmi/actions";
 
 // local
-import { wagmiConfig as config } from "../config";
-import { mini721ContractConfig } from "./abi";
+import { wagmiConfig } from "../config";
+import { mini721ContractConfig as miniConfig } from "./abi";
 
 const svgToBase64 = (svg: string): string =>
   `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 
-export const useTotalSupply = () => {
-  const {
-    data: totalSupply,
-    isPending,
-    error,
-    refetch,
-  } = useReadContract({
-    ...mini721ContractConfig,
-    functionName: "totalSupply",
-    query: {
-      enabled: false,
-    },
-  });
+export const readTotalSupply = async () => {
+  try {
+    const totalSupply = await readContract(wagmiConfig, {
+      ...miniConfig,
+      functionName: "totalSupply",
+    } as any);
 
-  const readTotalSupply = async () => {
-    const result = await refetch();
-    return result;
-  };
-
-  return {
-    readTotalSupply,
-    totalSupply,
-    isPending,
-    error,
-  };
+    return totalSupply;
+  } catch (err) {
+    console.error("❌ Failed to read SVG:", err);
+    return null;
+  }
 };
-
 export const readSVG = async (tokenId: bigint) => {
   try {
-    const svgRaw = await readContract(config, {
-      ...mini721ContractConfig,
+    const svgRaw = await readContract(wagmiConfig, {
+      ...miniConfig,
       functionName: "svg",
       args: [tokenId],
     } as any); // typescript complains about auth list
@@ -55,8 +41,8 @@ export const readSVG = async (tokenId: bigint) => {
 
 export const readOwnerOf = async (tokenId: bigint) => {
   try {
-    const owner = await readContract(config, {
-      ...mini721ContractConfig,
+    const owner = await readContract(wagmiConfig, {
+      ...miniConfig,
       functionName: "ownerOf",
       args: [tokenId],
     } as any); // typescript complains about auth list
@@ -70,8 +56,8 @@ export const readOwnerOf = async (tokenId: bigint) => {
 
 export const readBalanceOf = async (address: string) => {
   try {
-    const balance = await readContract(config, {
-      ...mini721ContractConfig,
+    const balance = await readContract(wagmiConfig, {
+      ...miniConfig,
       functionName: "balanceOf",
       args: [address],
     } as any); // typescript complains about auth list
@@ -84,8 +70,8 @@ export const readBalanceOf = async (address: string) => {
 };
 
 export const fetchMyTokens = async (address: `0x${string}`) => {
-  const supply = await readContract(config, {
-    ...mini721ContractConfig,
+  const supply = await readContract(wagmiConfig, {
+    ...miniConfig,
     functionName: "totalSupply",
   } as any); // as any to skip auth list
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   onChange: (hex: string) => void;
@@ -7,16 +7,19 @@ type Props = {
 
 export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const markerRef = useRef<HTMLCanvasElement | null>(null);
 
+  const radius = size / 2;
+
+  const [marker, setMarker] = useState<{ x: number; y: number } | null>(null);
+
+  /* -------------- draw the wheel once -------------- */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    // draw that cosmic wheel 💫
-    const radius = size / 2;
 
     for (let x = 0; x < size; x++) {
       for (let y = 0; y < size; y++) {
@@ -25,7 +28,6 @@ export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist <= radius) {
-          // angle 0..360
           const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 180;
           const sat = dist / radius;
 
@@ -34,8 +36,35 @@ export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
         }
       }
     }
-  }, [size]);
+  }, [size, radius]);
 
+  /* -------------- draw the marker whenever it changes -------------- */
+  useEffect(() => {
+    const markerCanvas = markerRef.current;
+    const wheelCanvas = canvasRef.current;
+    if (!markerCanvas || !wheelCanvas) return;
+
+    const ctx = markerCanvas.getContext("2d");
+    if (!ctx) return;
+
+    // clear previous marker
+    ctx.clearRect(0, 0, size, size);
+
+    if (!marker) return;
+
+    ctx.beginPath();
+    ctx.arc(marker.x, marker.y, 6, 0, Math.PI * 2);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "white";
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(marker.x, marker.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+  }, [marker, size]);
+
+  /* -------------- click handler (same as yours + marker) -------------- */
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -44,10 +73,14 @@ export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
     if (!ctx) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = Math.floor(e.clientX - rect.left);
+    const y = Math.floor(e.clientY - rect.top);
+
+    // update marker dot
+    setMarker({ x, y });
 
     const pixel = ctx.getImageData(x, y, 1, 1).data;
+
     const hex =
       "#" +
       [...pixel]
@@ -59,12 +92,41 @@ export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
   };
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={size}
-      height={size}
-      onClick={handleClick}
-      style={{ cursor: "crosshair", borderRadius: "50%" }}
-    />
+    <div
+      style={{
+        position: "relative",
+        width: size,
+        height: size,
+      }}
+    >
+      {/* actual color wheel */}
+      <canvas
+        ref={canvasRef}
+        width={size}
+        height={size}
+        onClick={handleClick}
+        style={{
+          borderRadius: "50%",
+          cursor: "crosshair",
+          position: "absolute",
+          top: 0,
+          left: 0,
+        }}
+      />
+
+      {/* transparent canvas JUST for the marker */}
+      <canvas
+        ref={markerRef}
+        width={size}
+        height={size}
+        style={{
+          borderRadius: "50%",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          pointerEvents: "none", // clicks pass through
+        }}
+      />
+    </div>
   );
 };

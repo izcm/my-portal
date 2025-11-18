@@ -1,48 +1,41 @@
-import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { mini721ContractConfig } from "./abi";
-
+import { mini721ContractConfig as config } from "./abi";
 import { useTx } from "../helpers/useTx";
 
-export const useMint_old = (sender: string) => {
-  const {
-    data: txHash,
-    writeContract,
-    status: writeStatus,
-  } = useWriteContract();
-
-  const {
-    isLoading: isConfirming,
-    isSuccess,
-    isError,
-  } = useWaitForTransactionReceipt({ hash: txHash });
-
-  const mint = (to: `0x${string}`, color: bigint) =>
-    writeContract({
-      ...mini721ContractConfig,
-      functionName: "mintWithColor",
-      args: [to, color],
-      account: sender,
-    });
-
-  return {
-    mint,
-    txHash,
-    writeStatus, // pending wallet confirm
-    isConfirming, // waiting for mining
-    isSuccess, // mined
-    isError, // reverted
-  };
-};
-
-export const useMint = (sender: string) => {
+export const useMint = (caller: string) => {
   const tx = useTx();
   const mint = (to: `0x${string}`, color: bigint) => {
     tx.send({
-      ...mini721ContractConfig,
+      ...config,
       functionName: "mintWithColor",
       args: [to, color],
-      account: sender,
+      account: caller,
     });
   };
   return { ...tx, mint };
+};
+
+export const useTransfer = (caller: string) => {
+  const tx = useTx();
+  const transfer = (to: `0x${string}`, tokenId: bigint) => {
+    tx.send({
+      ...config,
+      functionName: "transfer",
+      args: [to, tokenId],
+      account: caller,
+    });
+  };
+  return { ...tx, transfer };
+};
+
+export const setColor = (caller: string) => {
+  const tx = useTx();
+  const setColor = (tokenId: bigint, rgb: bigint) => {
+    tx.send({
+      ...config,
+      functionName: "setColor",
+      args: [tokenId, rgb],
+      account: caller,
+    });
+  };
+  return { ...tx, setColor };
 };

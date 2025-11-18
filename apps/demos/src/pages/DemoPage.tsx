@@ -22,7 +22,7 @@ import { NFTCarosel } from "../components/NFTCarosel";
 import { Modal } from "../components/Modal";
 import { ColorWheel } from "../components/ColorWheel";
 
-import blushSvgText from "/icons/miniNFT/BLUSH.svg?raw";
+import blushSvgText from "/icons/miniNFT/default_mini.svg?raw";
 import type { UI_NFT } from "../data/UI_NFT";
 
 export type LogEntry = {
@@ -31,6 +31,7 @@ export type LogEntry = {
 };
 
 // ❗ TODO: for write events [Gas Usage] in log entry
+// ❗ TODO: randomize color on reopening of modal for more "fun" vibe
 export const DemoPage = () => {
   const { address: wallet, isConnected } = useAccount();
 
@@ -47,7 +48,7 @@ export const DemoPage = () => {
     return <p className="text-center mt-10">Please connect a wallet first.</p>;
   }
 
-  /* ACTIVE USER'S NFTs */
+  /* NFTs owned by wallet */
   const [myNFTs, setMyNFTs] = useState<UI_NFT[]>([]);
 
   useEffect(() => {
@@ -159,10 +160,22 @@ export const DemoPage = () => {
       },
     },
     transfer: {
+      label: "Transfer to what address?",
+      placeholder: "address",
+      btnTxtPrimary: "Transfer",
+      btnTxtSecondary: "Execute Transfer",
+      topBar: false,
+      modal: true,
+      action: async (input: string) => {
+        const balance = await readBalanceOf(input as `0x${string}`);
+        return `🔢 Balance = ${balance}`;
+      },
+    },
+    setColor: {
       label: "Balance of which address?",
       placeholder: "address",
       btnTxtPrimary: "Change NFT Color",
-      btnTxtSecondary: "Update Color",
+      btnTxtSecondary: "Set Color",
       topBar: false,
       modal: true,
       action: async (input: string) => {
@@ -183,27 +196,34 @@ export const DemoPage = () => {
     return false;
   })();
 
-  // OUTPUTS
+  const mode = modal.action ? actions[modal.action] : null;
+
+  // log outputs
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
   const pushLog = (entry: LogEntry) => {
     setLogs((prev) => [...prev, entry]);
   };
 
-  const mode = modal.action ? actions[modal.action] : null;
-
   // external calls lifecycle trackers
   const txStatus = mintTx.status;
+  const [toast, setToast] = useState(false); // for loading spinner
 
   useEffect(() => {
     if (txStatus === "success") {
       pushLog({ type: "success", message: "🎉 Transaction succeeded!" });
-      setModal({ open: false, action: null });
+
+      setTimeout(() => {
+        setModal({ open: false, action: null });
+      }, 2000);
     }
 
     if (txStatus === "reverted") {
       pushLog({ type: "error", message: "❌ Transaction failed" });
-      setModal({ open: false, action: null });
+
+      setTimeout(() => {
+        setModal({ open: false, action: null });
+      }, 2000);
     }
   }, [txStatus]);
 
@@ -370,7 +390,11 @@ export const DemoPage = () => {
           onClose={() => setModal({ open: false, action: null })}
         >
           {modal.action === "mint" ? (
-            <div className="flex flex items-center gap-4 p-2">
+            <div
+              className="
+              flex flex items-center gap-4 p-4
+              "
+            >
               <div className="flex flex-col mr-8 gap-4">
                 <div
                   className="w-50 bg-black/30 rounded-lg"
@@ -381,11 +405,11 @@ export const DemoPage = () => {
                     ),
                   }}
                 />
-
                 <div className="flex flex-col gap-2">
                   <button
                     className="btn btn-primary"
                     onClick={() => {
+                      setUiLoading(true);
                       actions.mint.action();
                     }}
                   >
@@ -404,12 +428,11 @@ export const DemoPage = () => {
                   Choose color
                 </p>
                 <ColorWheel onChange={setColor} size={200} />
-                <p>chosen: {color}</p>
               </div>
             </div>
           ) : (
             /* OTHER */
-            <div className="flex flex-col items-center gap-4 p-2">
+            <div className="flex flex-col items-center gap-4 p-4">
               <div className="flex flex-col gap-4 self-stretch mx-4 my-2">
                 <span>{mode.label}</span>
                 <input

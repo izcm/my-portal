@@ -15,12 +15,11 @@ export const DemoCard = ({ title, desc, id, img }: DemoCardProps) => {
         demo-card group
         relative flex flex-col items-center
         p-6 rounded-xl
-        bg-surface/20
         border border-soft
         shadow-[0_0_18px_rgba(0,0,0,0.25)]
         backdrop-blur-2xl
         cursor-pointer
-        transition-all
+        transition-all 
       "
     >
       <div className="demo-card__tag">demo •</div>

@@ -45,14 +45,11 @@ export default function App() {
             </a>
           </div>
         </nav>
-
-        {/* FIXED SEPARATOR */}
-        <div className="h-[2px] w-full bg-muted"></div>
       </div>
 
-      {/* HERO */}
       <div className="flex flex-col grow ">
-        <section className="flex justify-center section--cosmic fade-in border-b border-default">
+      {/* HERO */}
+        <section className="flex justify-center section--cosmic fade-in border-b border-default bg-black/10">
           <div
             className=" 
               flex flex-col lg:flex-row grow min-h-[400px]
@@ -93,8 +90,8 @@ export default function App() {
           <div
             className="
                 grid grid-cols-1 md:grid-cols-3 gap-4
-                border border-soft rounded-xl p-6
-                backdrop-blur-sm
+                border border-default rounded-xl p-6
+                backdrop-blur-sm 
               "
           >
             {demos.map((demo) => (

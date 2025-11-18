@@ -92,7 +92,7 @@ export const DemoPage = () => {
     open: false,
     action: null,
   });
-
+  const closeModal = () => setModal({open: false, action: null});
   const [color, setColor] = useState("#ffffff");
   const [readArgument, setReadArgument] = useState("");
 
@@ -138,7 +138,7 @@ export const DemoPage = () => {
       modal: true,
       action: async () => {
         const colorNumber = BigInt("0x" + color.slice(1));
-        setColorTx.setColor(colorNumber, BigInt((indexActiveNFT + 1)));
+        setColorTx.setColor(colorNumber, BigInt(indexActiveNFT + 1));
 
         return `🖍 New Color #${indexActiveNFT}  = ${color}`;
       },
@@ -212,12 +212,16 @@ export const DemoPage = () => {
   };
 
   // external calls lifecycle trackers
+  const [activeTx, setActiveTx] = useState<
+    "mint" | "color" | "transfer" | null
+  >(null);
+
   const txStatus =
-    modal.action === "mint"
+    activeTx === "mint"
       ? mintTx.status
-      : modal.action === "color"
+      : activeTx === "color"
         ? setColorTx.status
-        : modal.action === "transfer"
+        : activeTx === "transfer"
           ? transferTx.status
           : null;
 
@@ -235,7 +239,6 @@ export const DemoPage = () => {
               : "";
 
   useEffect(() => {
-    console.log(txStatus);
     if (txStatus === "success") {
       pushLog({ type: "success", message: "🎉 Transaction succeeded!" });
     }
@@ -398,7 +401,7 @@ export const DemoPage = () => {
         /* MINT */
         <Modal
           isOpen={modal.open}
-          onClose={() => setModal({ open: false, action: null })}
+          onClose={closeModal}
         >
           {modal.action === "mint" || modal.action === "color" ? (
             <div
@@ -420,15 +423,17 @@ export const DemoPage = () => {
                   <button
                     className="btn btn-primary"
                     onClick={() => {
+                      setActiveTx("color");
+
                       (mode.action as () => Promise<string>)();
-                      setModal({ open: false, action: null });
+                      closeModal();
                     }}
                   >
                     {mode.btnTxtSecondary}
                   </button>
                   <button
                     onClick={() => {
-                      setModal({ open: false, action: null });
+                      closeModal();
                     }}
                     className="btn btn-ghost"
                   >
@@ -460,7 +465,7 @@ export const DemoPage = () => {
               <button
                 disabled={!validInput}
                 onClick={async () => {
-                  setModal({ open: false, action: null });
+                  closeModal();
                   try {
                     const msg = await mode.action(readArgument);
                     pushLog({ type: "info", message: msg });

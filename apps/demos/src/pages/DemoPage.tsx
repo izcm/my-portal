@@ -264,7 +264,22 @@ export const DemoPage = () => {
         updateSVG(activeTokenId); // UI overlay prevents user from changing active NFT during call
       }
       if (activeTx === "mint") {
-        console.log(mintTx.logs);
+        const newId = BigInt(mintTx.logs[0].data);
+
+        const addNewNFT = async () => {
+          setMyNFTs((prev) => [
+            ...prev,
+            {
+              tokenId: newId,
+              label: `Token #${newId}`,
+              svg: "",
+              owned: true,
+            } as UI_NFT,
+          ]);
+          updateSVG(newId);
+          setIndexActiveNFT(myNFTs.length - 1);
+        };
+        addNewNFT();
       }
     }
 

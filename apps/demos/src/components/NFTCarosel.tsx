@@ -12,15 +12,24 @@ export const NFTCarosel = ({ items, index, onChange }: NFTCarouselProps) => {
 
   const nft = items[index];
 
+  const maxDots = 4;
+
+  // Determine the current "page" based on index
+  const page = Math.floor(index / maxDots);
+
+  const startIndex = page * maxDots;
+  const endIndex = Math.min(startIndex + maxDots, items.length);
+
+  const dots = items.slice(startIndex, endIndex);
+
+  const itemsBefore = startIndex;
+  const itemsAfter = items.length - endIndex;
+
   return (
     <div className="flex flex-col items-center gap-2">
+
       {/* Image Panel */}
-      <div
-        className="
-          w-42 h-42 flex items-center justify-center
-          overflow-hidden
-        "
-      >
+      <div className="w-42 h-42 flex items-center justify-center overflow-hidden">
         <img
           key={nft.svg}
           src={nft.svg}
@@ -33,44 +42,56 @@ export const NFTCarosel = ({ items, index, onChange }: NFTCarouselProps) => {
       <div className="flex items-center gap-4 text-muted select-none">
         <span
           onClick={prev}
-          className="
-            cursor-pointer text-lg 
-            transition-colors duration-150
-            hover:text-accent
-          "
+          className="cursor-pointer text-lg hover:text-accent transition-colors duration-150"
         >
           ‹
         </span>
 
         <span className="text-xs tracking-widest uppercase font-mono w-24 text-center">
-          {items[index].label}
+          {nft.label}
         </span>
 
         <span
           onClick={next}
-          className="
-            cursor-pointer text-lg 
-            transition-colors duration-150
-            hover:text-accent
-          "
+          className="cursor-pointer text-lg hover:text-accent transition-colors duration-150"
         >
           ›
         </span>
       </div>
 
       {/* Dots */}
-      <div className="flex gap-2">
-        {items.map((_, i) => (
-          <div
-            key={i}
-            onClick={() => onChange(i)}
-            className={`
-        w-2.5 h-2.5 rounded-full cursor-pointer transition-all
-        ${i === index ? "bg-accent" : "bg-muted border border-soft"}
-      `}
-          />
-        ))}
+      <div className="flex items-center gap-2">
+
+        {/* +before */}
+        {itemsBefore > 0 && (
+          <span className="text-xs text-muted font-mono">+{itemsBefore}</span>
+        )}
+
+        {dots.map((_, i) => {
+          const realIndex = startIndex + i;
+          return (
+            <div
+              key={realIndex}
+              onClick={() => onChange(realIndex)}
+              className={`
+                w-2.5 h-2.5 rounded-full cursor-pointer transition-all
+                ${
+                  realIndex === index
+                    ? "bg-accent"
+                    : "bg-muted border border-soft"
+                }
+              `}
+            />
+          );
+        })}
+
+        {/* +after */}
+        {itemsAfter > 0 && (
+          <span className="text-xs text-muted font-mono">+{itemsAfter}</span>
+        )}
+
       </div>
+
     </div>
   );
 };

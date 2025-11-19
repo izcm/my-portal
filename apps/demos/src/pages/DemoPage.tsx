@@ -10,10 +10,9 @@ import {
   readTotalSupply,
   readOwnerOf,
   readBalanceOf,
-  fetchMyTokens,
   readSVG,
-} from "../web3/miniNFT/read";
-import { useMint, useTransfer, useSetColor } from "../web3/miniNFT/write";
+} from "../web3/miniNFT/actions/read";
+import { useMint, useTransfer, useSetColor } from "../web3/miniNFT/hooks/write";
 
 import { demos } from "../data/demos";
 import { DemoLayout } from "../components/layouts/DemoLayout";
@@ -24,6 +23,7 @@ import { ColorWheel } from "../components/ColorWheel";
 
 import blushSvgText from "/icons/miniNFT/default_mini.svg?raw";
 import type { UI_NFT } from "../data/UI_NFT";
+import { useMyTokens } from "../web3/miniNFT/hooks/read";
 
 export type LogEntry = {
   type: "success" | "error" | "info";
@@ -49,65 +49,86 @@ export const DemoPage = () => {
   }
 
   /* NFTs owned by wallet */
+  const { tokens, isFetching: isFetchingNFTs } = useMyTokens(wallet);
+
   const [myNFTs, setMyNFTs] = useState<UI_NFT[]>([]);
+  const [indexActiveNFT, setIndexActiveNFT] = useState(0);
+  const activeTokenId =
+    myNFTs.length > 0 ? myNFTs[indexActiveNFT].tokenId : null;
 
   useEffect(() => {
-    if (!wallet) {
-      setMyNFTs([]); // clear NFTs when wallet disconnects
-      return;
-    }
+    const loadSVGs = async () => {
+      const ownedNFTs = await Promise.all(
+        tokens.map(async (id) => {
+          const svg = await readSVG(id);
+          return {
+            tokenId: id,
+            label: `Token #${id}`,
+            svg: svg || "",
+            owned: true,
+          } as UI_NFT;
+        }),
+      );
 
-    const loadNFTs = async () => {
-      try {
-        const tokens = await fetchMyTokens(wallet);
-
-        const ownedNFTs = await Promise.all(
-          tokens.map(async (id) => {
-            const svg = await readSVG(id);
-            return {
-              label: `Token #${id}`,
-              svg: svg || "",
-              owned: true,
-            } as UI_NFT;
-          }),
-        );
-
-        setMyNFTs(ownedNFTs);
-        console.log("✅ NFTs loaded:", ownedNFTs);
-      } catch (err) {
-        console.error("❌ Failed to load NFTs:", err);
-      }
+      setMyNFTs(ownedNFTs);
     };
 
-    loadNFTs();
-  }, [wallet]);
+    loadSVGs();
+  }, [tokens]);
 
-  const [indexActiveNFT, setIndexActiveNFT] = useState(0);
+  const updateSVG = async (tokenId: bigint) => {
+    const svg = await readSVG(tokenId);
+
+    // ❗ TODO: error handling here
+    if (!svg) return;
+
+    const updated = myNFTs.map((nft) => {
+      return nft.tokenId === tokenId ? { ...nft, svg: svg } : nft;
+    });
+    setMyNFTs(updated);
+  };
 
   // modal stuff
   const [modal, setModal] = useState<{
     open: boolean;
-    action: "ownerOf" | "balanceOf" | "mint" | "transfer" | "color" | null;
+    key: keyof typeof actions;
   }>({
     open: false,
-    action: null,
+    key: "mint", // we DO NOT want null
   });
-  const closeModal = () => setModal({open: false, action: null});
+
+  const closeModal = () => {
+    setModal((prev) => ({ ...prev, open: false }));
+    setReadArgument("");
+  };
+
+  // inputs
   const [color, setColor] = useState("#ffffff");
   const [readArgument, setReadArgument] = useState("");
 
+  // input validation
+  const validInput = (() => {
+    if (modal.key === "balanceOf" || modal.key === "transfer") {
+      return isAddress(readArgument);
+    }
+    if (modal.key === "ownerOf") {
+      return /^\d+$/.test(readArgument);
+    }
+    return false;
+  })();
+
   // external calls
   const mintTx = useMint(wallet);
-  const transferTx = useSetColor(wallet);
+  const transferTx = useTransfer(wallet);
   const setColorTx = useSetColor(wallet);
 
   const actions = {
     /* WRITE ACTIONS */
     mint: {
-      label: "Mint to which address?",
+      title: "Mint to which address?",
       placeholder: "",
-      btnTxtPrimary: "⛏ Mint New",
-      btnTxtSecondary: "Mint",
+      button: "⛏ Mint New",
+      confirm: "Mint",
       topBar: true,
       modal: true,
       action: async () => {
@@ -118,27 +139,27 @@ export const DemoPage = () => {
       },
     },
     transfer: {
-      label: "Transfer to what address?",
+      title: "Transfer to what address?",
       placeholder: "0xabc123",
-      btnTxtPrimary: "Transfer",
-      btnTxtSecondary: "Execute Transfer",
+      button: "Transfer",
+      confirm: "Execute Transfer",
       topBar: false,
       modal: true,
-      action: async (input: string) => {
-        const balance = await readBalanceOf(input as `0x${string}`);
-        return `🔢 Balance = ${balance}`;
+      action: async (to: string, tokenId: bigint) => {
+        transferTx.transfer(to as `0x${string}`, BigInt(tokenId));
+        return `🔂 Transfered #${tokenId} to: ${to}`;
       },
     },
     color: {
-      label: "Set NFT Color",
+      title: "Set NFT Color",
       placeholder: "",
-      btnTxtPrimary: "Change NFT Color",
-      btnTxtSecondary: "Set Color",
+      button: "Change NFT Color",
+      confirm: "Set Color",
       topBar: false,
       modal: true,
       action: async () => {
         const colorNumber = BigInt("0x" + color.slice(1));
-        setColorTx.setColor(colorNumber, BigInt(indexActiveNFT + 1));
+        setColorTx.setColor(BigInt(indexActiveNFT + 1), colorNumber);
 
         return `🖍 New Color #${indexActiveNFT}  = ${color}`;
       },
@@ -146,9 +167,10 @@ export const DemoPage = () => {
 
     /* READ ACTIONS */
     totalSupply: {
-      label: "Mint to which address?",
+      title: "Mint to which address?",
       placeholder: "address",
-      btnTxtPrimary: " 📊 Supply",
+      button: " 📊 Supply",
+      confirm: "Read Supply",
       topBar: true,
       modal: false,
       action: async () => {
@@ -160,10 +182,10 @@ export const DemoPage = () => {
       },
     },
     ownerOf: {
-      label: "Owner of which token?",
+      title: "Owner of which token?",
       placeholder: "tokenId",
-      btnTxtPrimary: "🔍 Owner",
-      btnTxtSecondary: "Read Owner",
+      button: "🔍 Owner",
+      confirm: "Read Owner",
       topBar: true,
       modal: true,
       action: async (input: string) => {
@@ -178,10 +200,10 @@ export const DemoPage = () => {
       },
     },
     balanceOf: {
-      label: "Balance of which address?",
+      title: "Balance of which address?",
       placeholder: "0xabc123",
-      btnTxtPrimary: "🔢 Balances",
-      btnTxtSecondary: "Read Balance",
+      button: "🔢 Balances",
+      confirm: "Read Balance",
       topBar: true,
       modal: true,
       action: async (input: string) => {
@@ -191,18 +213,7 @@ export const DemoPage = () => {
     },
   } as const;
 
-  // input validation
-  const validInput = (() => {
-    if (modal.action === "balanceOf" || modal.action === "transfer") {
-      return isAddress(readArgument);
-    }
-    if (modal.action === "ownerOf") {
-      return /^\d+$/.test(readArgument);
-    }
-    return false;
-  })();
-
-  const mode = modal.action ? actions[modal.action] : null;
+  const mode = actions[modal.key]; // never null
 
   // log outputs
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -211,7 +222,14 @@ export const DemoPage = () => {
     setLogs((prev) => [...prev, entry]);
   };
 
-  // external calls lifecycle trackers
+  // tx lifecycle handling
+  const WRITE_KEYS = ["mint", "color", "transfer"] as const;
+  type WriteActionKey = (typeof WRITE_KEYS)[number];
+
+  const isWriteKey = (key: string): key is WriteActionKey => {
+    return (WRITE_KEYS as readonly string[]).includes(key);
+  };
+
   const [activeTx, setActiveTx] = useState<
     "mint" | "color" | "transfer" | null
   >(null);
@@ -241,6 +259,13 @@ export const DemoPage = () => {
   useEffect(() => {
     if (txStatus === "success") {
       pushLog({ type: "success", message: "🎉 Transaction succeeded!" });
+
+      if (activeTx === "color" && activeTokenId !== null) {
+        updateSVG(activeTokenId); // UI overlay prevents user from changing active NFT during call
+      }
+      if (activeTx === "mint") {
+        console.log(mintTx.logs);
+      }
     }
 
     if (txStatus === "reverted") {
@@ -265,10 +290,9 @@ export const DemoPage = () => {
               .map(([key, action]) => (
                 <button
                   key={key}
-                  disabled={status === "pending"}
                   onClick={async () => {
                     if (action.modal) {
-                      setModal({ open: true, action: key as any });
+                      setModal({ open: true, key: key as any });
                     } else {
                       await action.action();
                     }
@@ -278,7 +302,7 @@ export const DemoPage = () => {
                   flex items-center gap-2
                 `}
                 >
-                  {action.btnTxtPrimary}
+                  {action.button}
                 </button>
               ))}
           </div>
@@ -307,11 +331,11 @@ export const DemoPage = () => {
                       <button
                         key={key}
                         onClick={async () => {
-                          setModal({ open: true, action: key as any });
+                          setModal({ open: true, key: key as any });
                         }}
                         className="token-action"
                       >
-                        [ {action.btnTxtPrimary} ]
+                        [ {action.button} ]
                       </button>
                     ))}
                 </div>
@@ -399,11 +423,8 @@ export const DemoPage = () => {
       {/* MODAL */}
       {mode && (
         /* MINT */
-        <Modal
-          isOpen={modal.open}
-          onClose={closeModal}
-        >
-          {modal.action === "mint" || modal.action === "color" ? (
+        <Modal isOpen={modal.open} onClose={closeModal}>
+          {modal.key === "mint" || modal.key === "color" ? (
             <div
               className="
               flex items-center gap-4 p-4 bg-black/10
@@ -423,13 +444,18 @@ export const DemoPage = () => {
                   <button
                     className="btn btn-primary"
                     onClick={() => {
-                      setActiveTx("color");
-
-                      (mode.action as () => Promise<string>)();
+                      // doesn't look good but for now its ok
+                      setActiveTx(modal.key as WriteActionKey); // for sure here
+                      if (modal.key === "mint") {
+                        actions["mint"].action();
+                      }
+                      if (modal.key === "color") {
+                        actions["color"].action();
+                      }
                       closeModal();
                     }}
                   >
-                    {mode.btnTxtSecondary}
+                    {mode.confirm}
                   </button>
                   <button
                     onClick={() => {
@@ -452,7 +478,7 @@ export const DemoPage = () => {
             /* OTHER */
             <div className="flex flex-col items-center gap-4 p-8">
               <div className="flex flex-col gap-4 self-stretch mx-4 my-2">
-                <span>{mode.label}</span>
+                <span>{mode.title}</span>
                 <input
                   placeholder={mode.placeholder}
                   onChange={(e) => setReadArgument(e.target.value)}
@@ -466,9 +492,20 @@ export const DemoPage = () => {
                 disabled={!validInput}
                 onClick={async () => {
                   closeModal();
+                  if (isWriteKey(modal.key)) {
+                    setActiveTx(modal.key as "mint" | "color" | "transfer");
+                  }
                   try {
-                    const msg = await mode.action(readArgument);
-                    pushLog({ type: "info", message: msg });
+                    // ❗ TODO: I know its wrong, but it feels so right
+                    const fn = mode.action as any;
+
+                    const msg =
+                      modal.key === "transfer"
+                        ? await fn(readArgument, activeTokenId!)
+                        : await fn(readArgument);
+                    if (msg) {
+                      pushLog({ type: "info", message: msg });
+                    }
                   } catch (err) {
                     pushLog({
                       type: "error",
@@ -478,7 +515,7 @@ export const DemoPage = () => {
                 }}
                 className={`btn btn-secondary ${!validInput ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                {mode.btnTxtSecondary}
+                {mode.confirm}
               </button>
             </div>
           )}

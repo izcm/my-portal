@@ -1,4 +1,4 @@
-const contract_addr = import.meta.env.VITE_CONTRACT_ADDR;
+const contract_addr = import.meta.env.VITE_MINI_NFT_ADDR;
 
 export const mini721ContractConfig = {
   address: contract_addr,
@@ -70,6 +70,25 @@ export const mini721ContractConfig = {
         { name: "rbg", type: "uint256" },
       ],
       outputs: [],
+    },
+
+    /* EVENTS / LOGS */
+    {
+      name: "Transfer",
+      type: "event",
+      inputs: [
+        {
+          indexed: true,
+          name: "from",
+          type: "address",
+        },
+        { indexed: true, name: "to", type: "address" },
+        {
+          indexed: false,
+          name: "value",
+          type: "uint256",
+        },
+      ],
     },
   ],
 } as const;

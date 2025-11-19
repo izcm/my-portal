@@ -1,9 +1,8 @@
-import { useReadContract } from "wagmi";
 import { readContract } from "wagmi/actions";
 
 // local
-import { wagmiConfig } from "../config";
-import { mini721ContractConfig as miniConfig } from "./abi";
+import { wagmiConfig } from "../../config";
+import { mini721ContractConfig as miniConfig } from "../abi";
 
 const svgToBase64 = (svg: string): string =>
   `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
@@ -21,6 +20,7 @@ export const readTotalSupply = async () => {
     return null;
   }
 };
+
 export const readSVG = async (tokenId: bigint) => {
   try {
     const svgRaw = await readContract(wagmiConfig, {

@@ -93,7 +93,7 @@ export const DemoLayout = ({
         <p className="text-dim text-sm">{desc}</p>
 
         {/* DEMO CONTAINER */}
-        <div className="w-full border border-default rounded-xl p-6 bg-black/30">
+        <div className="w-full border border-default rounded-xl p-6 bg-black/10">
           {children}
         </div>
 

@@ -45,17 +45,22 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
   };
 
   const addNewNFT = async (tokenId: bigint) => {
-    setUsersNFTs((prev) => [
-      ...prev,
-      {
+    let indexAfterAdd = 0;
+
+    setUsersNFTs((prev) => {
+      const newNFT = {
         tokenId: tokenId,
         label: `Token #${tokenId}`,
         svg: "",
         owned: true,
-      } as UI_NFT,
-    ]);
+      } as UI_NFT;
+
+      indexAfterAdd = prev.length; // showcase the added NFT
+      return [...prev, newNFT];
+    });
 
     await updateSVG(tokenId);
+    return indexAfterAdd;
   };
 
   return {

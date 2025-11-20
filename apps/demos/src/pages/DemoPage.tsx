@@ -107,7 +107,8 @@ export const DemoPage = () => {
         const to = mintTx.logs[0].args.to;
 
         const newNFT = async () => {
-          addNewNFT(newId).then(() => setIndexActiveNFT((prev) => prev + 1));
+          const newIndex = await addNewNFT(newId);
+          setIndexActiveNFT(newIndex);
         };
         newNFT();
 

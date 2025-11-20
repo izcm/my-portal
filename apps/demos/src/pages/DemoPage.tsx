@@ -21,8 +21,10 @@ import { makeActionConfig } from "../features/miniNFT/data/ui_actions";
 
 import { DemoLayout } from "../shared/layouts/DemoLayout";
 
+// components
 import { NFTCarosel } from "../features/miniNFT/components/Carosel";
 import { NFTModal } from "../features/miniNFT/components/ModalContent";
+import { LoadingSpinner } from "../shared/components/LoadingSpinner";
 
 // utils
 import { shortenAddr } from "../shared/utils/strings";
@@ -127,7 +129,7 @@ export const DemoPage = () => {
   // -----------------------------
   const {
     userNFTs: myNFTs,
-    isFetching,
+    isGalleryLoading,
     updateSVG,
     addNewNFT,
   } = useNFTGallery(wallet);
@@ -256,7 +258,7 @@ export const DemoPage = () => {
                 </button>
               ))}
           </div>
-
+          
           {/* NFT Preview*/}
           <div
             className="
@@ -265,8 +267,17 @@ export const DemoPage = () => {
               border border-default rounded-lg
             "
           >
-            {myNFTs.length === 0 ? (
-              <p>Loading SVG...</p>
+            {isGalleryLoading ? (
+              <div className="flex items-center">
+                <LoadingSpinner size={12} />
+              </div>
+            ) : myNFTs.length === 0 ? (
+              <div className="flex items-center">
+                <div className="flex flex-col gap-2 items-center">
+                  <p>You don't own any Minis.</p>
+                  <p>Mint your first 2day?</p>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col justify-center items-center gap-4">
                 <NFTCarosel

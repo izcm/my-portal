@@ -33,7 +33,7 @@ export const NFTCarosel = ({ items, index, onChange }: NFTCarouselProps) => {
           key={nft.svg}
           src={nft.svg}
           alt={nft.label}
-          className="h-full w-full object-contain fade-in"
+          className="h-full w-full object-contain"
         />
       </div>
 

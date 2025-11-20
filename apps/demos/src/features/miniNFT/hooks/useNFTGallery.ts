@@ -7,29 +7,47 @@ import { type UI_NFT } from "../data/ui_nfts";
 
 // feature hook
 export const useNFTGallery = (wallet: `0x${string}`) => {
-  const { tokens, isFetching } = useMyTokens(wallet);
+  const { tokens, isFetching: isTokensFetching } = useMyTokens(wallet);
 
-  const [userNFTs, setUsersNFTs] = useState<UI_NFT[]>([]);
+  const [userNFTs, setUserNFTs] = useState<UI_NFT[]>([]);
+  const [isGalleryLoading, setIsGalleryLoading] = useState(true);
 
   useEffect(() => {
-    const run = async () => {
+    const load = async () => {
+      // token fetch still loading
+      if (isTokensFetching) {
+        setIsGalleryLoading(true);
+        return;
+      }
+
+      // no tokens
+      if (!tokens || tokens.length === 0) {
+        setUserNFTs([]);
+        setIsGalleryLoading(false);
+        return;
+      }
+
+      // tokens fetched => fetch SVGs
+      setIsGalleryLoading(true);
+
       const nfts = await Promise.all(
         tokens.map(async (id) => {
           const svg = await readSVG(id);
           return {
             tokenId: id,
             label: `Token #${id}`,
-            svg: svg || "",
+            svg: svg ?? "",
             owned: true,
           } as UI_NFT;
         }),
       );
 
-      setUsersNFTs(nfts);
+      setUserNFTs(nfts);
+      setIsGalleryLoading(false);
     };
 
-    run();
-  }, [tokens]);
+    load();
+  }, [tokens, isTokensFetching]);
 
   const updateSVG = async (tokenId: bigint) => {
     const svg = await readSVG(tokenId);
@@ -39,7 +57,7 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
       return;
     }
 
-    setUsersNFTs((prev) =>
+    setUserNFTs((prev) =>
       prev.map((nft) => (nft.tokenId === tokenId ? { ...nft, svg } : nft)),
     );
   };
@@ -47,7 +65,7 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
   const addNewNFT = async (tokenId: bigint) => {
     let indexAfterAdd = 0;
 
-    setUsersNFTs((prev) => {
+    setUserNFTs((prev) => {
       const newNFT = {
         tokenId: tokenId,
         label: `Token #${tokenId}`,
@@ -64,7 +82,7 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
   };
 
   return {
-    isFetching,
+    isGalleryLoading,
     userNFTs,
     updateSVG,
     addNewNFT,

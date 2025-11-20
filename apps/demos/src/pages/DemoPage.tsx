@@ -8,10 +8,14 @@ import {
   readTotalSupply,
   readOwnerOf,
   readBalanceOf,
-  readSVG,
 } from "../features/miniNFT/web3/actions/read";
-import { useMint, useTransfer, useSetColor } from "../features/miniNFT/web3/hooks/write";
+import {
+  useMint,
+  useTransfer,
+  useSetColor,
+} from "../features/miniNFT/web3/hooks/write";
 
+import { useNFTGallery } from "../features/miniNFT/hooks/useNFTGallery";
 import { demos } from "../shared/data/demos";
 import { makeActionConfig } from "../features/miniNFT/data/ui_actions";
 
@@ -20,11 +24,8 @@ import { DemoLayout } from "../shared/layouts/DemoLayout";
 import { NFTCarosel } from "../features/miniNFT/components/Carosel";
 import { NFTModal } from "../features/miniNFT/components/ModalContent";
 
-import type { UI_NFT } from "../features/miniNFT/data/ui_nfts";
-import { useMyTokens } from "../features/miniNFT/web3/hooks/read";
-
 // utils
-import { parseAddr } from "../shared/utils/parse";
+import { shortenAddr } from "../shared/utils/strings";
 
 export type LogEntry = {
   type: "success" | "error" | "info";
@@ -49,74 +50,15 @@ export const DemoPage = () => {
     return <p className="text-center mt-10">Please connect a wallet first.</p>;
   }
 
-  /* NFTs owned by wallet */
-  const { tokens, isFetching: isFetchingNFTs } = useMyTokens(wallet);
-
-  const [myNFTs, setMyNFTs] = useState<UI_NFT[]>([]);
-  const [indexActiveNFT, setIndexActiveNFT] = useState(0);
-  const activeTokenId =
-    myNFTs.length > 0 ? myNFTs[indexActiveNFT].tokenId : null;
-
-  useEffect(() => {
-    const loadSVGs = async () => {
-      const ownedNFTs = await Promise.all(
-        tokens.map(async (id) => {
-          const svg = await readSVG(id);
-          return {
-            tokenId: id,
-            label: `Token #${id}`,
-            svg: svg || "",
-            owned: true,
-          } as UI_NFT;
-        }),
-      );
-
-      setMyNFTs(ownedNFTs);
-    };
-
-    loadSVGs();
-  }, [tokens]);
-
-  const updateSVG = async (tokenId: bigint) => {
-    const svg = await readSVG(tokenId);
-
-    // ❗ TODO: error handling here
-    if (!svg) return;
-
-    const updated = myNFTs.map((nft) => {
-      return nft.tokenId === tokenId ? { ...nft, svg: svg } : nft;
-    });
-    setMyNFTs(updated);
-  };
-
-  // modal stuff
-  const [modal, setModal] = useState<{
-    open: boolean;
-    key: keyof typeof actions;
-  }>({
-    open: false,
-    key: "mint", // we DO NOT want null
-  });
-
-  const closeModal = () => {
-    setModal((prev) => ({ ...prev, open: false }));
-  };
-
-  // external calls
+  // -----------------------------
+  // web3 tx & lifecycle
+  // -----------------------------
   const mintTx = useMint(wallet);
   const transferTx = useTransfer(wallet);
   const setColorTx = useSetColor(wallet);
 
- 
+  // web3 actions UI properties
   const actions = makeActionConfig();
-  const mode = actions[modal.key]; // never null
-
-  // log outputs
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-
-  const pushLog = (entry: LogEntry) => {
-    setLogs((prev) => [...prev, entry]);
-  };
 
   // tx lifecycle handling
   const WRITE_KEYS = ["mint", "color", "transfer"] as const;
@@ -151,6 +93,75 @@ export const DemoPage = () => {
             : txStatus === "reverted"
               ? "❌ Transaction failed"
               : "";
+
+  // handle tx success / error
+  useEffect(() => {
+    if (txStatus === "success") {
+      let successMsg = "";
+
+      if (activeTx === "color" && activeTokenId !== null) {
+        updateSVG(activeTokenId); // UI overlay prevents user from changing active NFT during call
+      }
+      if (activeTx === "mint") {
+        const newId = BigInt(mintTx.logs[0].data);
+        const to = mintTx.logs[0].args.to;
+
+        const newNFT = async () => {
+          addNewNFT(newId).then(() => setIndexActiveNFT((prev) => prev + 1));
+        };
+        newNFT();
+
+        successMsg = `⛏ Minted Token #${newId.toString()} to ${shortenAddr(to)}`;
+      }
+      pushLog({ type: "success", message: successMsg });
+    }
+
+    if (txStatus === "reverted") {
+      pushLog({ type: "error", message: "❌ Transaction failed" });
+    }
+  }, [txStatus]);
+
+  // -----------------------------
+  /* NFTs owned by wallet */
+  // -----------------------------
+  const {
+    userNFTs: myNFTs,
+    isFetching,
+    updateSVG,
+    addNewNFT,
+  } = useNFTGallery(wallet);
+
+  const [indexActiveNFT, setIndexActiveNFT] = useState(0);
+  const activeTokenId =
+    myNFTs.length > 0 ? myNFTs[indexActiveNFT].tokenId : null;
+
+  // -----------------------------
+  // modal & logs
+  // -----------------------------
+  const [modal, setModal] = useState<{
+    open: boolean;
+    key: keyof typeof actions;
+  }>({
+    open: false,
+    key: "mint", // we DO NOT want null
+  });
+
+  const closeModal = () => {
+    setModal((prev) => ({ ...prev, open: false }));
+  };
+
+  const mode = actions[modal.key]; // never null
+
+  // log outputs
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+
+  const pushLog = (entry: LogEntry) => {
+    setLogs((prev) => [...prev, entry]);
+  };
+
+  // -----------------------------
+  // handle write & read UI callbacks
+  // -----------------------------
 
   const handleWrite = ({
     key,
@@ -199,7 +210,9 @@ export const DemoPage = () => {
     } else {
       // expects argument
       if (key === "ownerOf") {
-        pushLog({ type: "info", message: `🔍 Owner = ${argument}` });
+        const res = await readOwnerOf(BigInt(argument));
+        const owner = res !== null ? shortenAddr(res) : "None";
+        pushLog({ type: "info", message: `🔍 Owner = ${owner}` });
         readOwnerOf(BigInt(argument));
       }
 
@@ -208,43 +221,6 @@ export const DemoPage = () => {
       }
     }
   };
-
-  useEffect(() => {
-    if (txStatus === "success") {
-      let successMsg = "";
-
-      if (activeTx === "color" && activeTokenId !== null) {
-        updateSVG(activeTokenId); // UI overlay prevents user from changing active NFT during call
-      }
-      if (activeTx === "mint") {
-        const newId = BigInt(mintTx.logs[0].data);
-        const to = mintTx.logs[0].args.to;
-        console.log(to);
-
-        const addNewNFT = async () => {
-          setMyNFTs((prev) => [
-            ...prev,
-            {
-              tokenId: newId,
-              label: `Token #${newId}`,
-              svg: "",
-              owned: true,
-            } as UI_NFT,
-          ]);
-          updateSVG(newId);
-          setIndexActiveNFT(myNFTs.length - 1);
-        };
-        addNewNFT();
-
-        successMsg = `⛏ Minted Token #${newId.toString()} to ${parseAddr(to)}`;
-      }
-      pushLog({ type: "success", message: successMsg });
-    }
-
-    if (txStatus === "reverted") {
-      pushLog({ type: "error", message: "❌ Transaction failed" });
-    }
-  }, [txStatus]);
 
   return (
     <>

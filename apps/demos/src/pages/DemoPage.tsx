@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
-// local
+// local (web3 read + write)
 import {
   readTotalSupply,
   readOwnerOf,
@@ -15,33 +14,38 @@ import {
   useSetColor,
 } from "../features/miniNFT/web3/hooks/write";
 
+// local (data + components + utils)
 import { useNFTGallery } from "../features/miniNFT/hooks/useNFTGallery";
 import { demos } from "../shared/data/demos";
-import { makeActionConfig } from "../features/miniNFT/data/ui_actions";
+import { makeActionConfig } from "../features/miniNFT/data/UI_ACTION_CONFIG";
 
 import { DemoLayout } from "../shared/layouts/DemoLayout";
-
-// components
 import { NFTCarosel } from "../features/miniNFT/components/Carosel";
 import { NFTModal } from "../features/miniNFT/components/ModalContent";
 import { LoadingSpinner } from "../shared/components/LoadingSpinner";
-
-// utils
 import { shortenAddr } from "../shared/utils/strings";
 
+// -----------------------------
+// Types
+// -----------------------------
 export type LogEntry = {
   type: "success" | "error" | "info";
   message: string;
 };
 
-// ❗ TODO: for write events [Gas Usage] in log entry
-// ❗ TODO: randomize color on reopening of modal for more "fun" vibe
-export const DemoPage = () => {
-  const { address: wallet, isConnected } = useAccount();
+// =====================================================================
+//                         COMPONENT START
+// =====================================================================
 
+export const DemoPage = () => {
+  // -----------------------------
+  // routing + wallet connection
+  // -----------------------------
+  const { address: wallet, isConnected } = useAccount();
   const { demoId } = useParams();
   const demo = demos.find((d) => d.id === demoId);
 
+  // early exits
   if (!demo) {
     return (
       <div className="text-center text-red-400 mt-20">Demo not found.</div>
@@ -52,23 +56,16 @@ export const DemoPage = () => {
     return <p className="text-center mt-10">Please connect a wallet first.</p>;
   }
 
+  // =====================================================================
+  //                         WEB3 TX HOOKS
+  // =====================================================================
+
   // -----------------------------
   // web3 tx & lifecycle
   // -----------------------------
   const mintTx = useMint(wallet);
   const transferTx = useTransfer(wallet);
   const setColorTx = useSetColor(wallet);
-
-  // web3 actions UI properties
-  const actions = makeActionConfig();
-
-  // tx lifecycle handling
-  const WRITE_KEYS = ["mint", "color", "transfer"] as const;
-  type WriteActionKey = (typeof WRITE_KEYS)[number];
-
-  const isWriteKey = (key: string): key is WriteActionKey => {
-    return (WRITE_KEYS as readonly string[]).includes(key);
-  };
 
   const [activeTx, setActiveTx] = useState<
     "mint" | "color" | "transfer" | null
@@ -78,55 +75,75 @@ export const DemoPage = () => {
     activeTx === "mint"
       ? mintTx.status
       : activeTx === "color"
-        ? setColorTx.status
-        : activeTx === "transfer"
-          ? transferTx.status
-          : null;
+      ? setColorTx.status
+      : activeTx === "transfer"
+      ? transferTx.status
+      : null;
 
   const txMessage =
     txStatus === "wallet"
       ? "🔐 Waiting for wallet..."
       : txStatus === "sent"
-        ? "🚀 Transaction sent..."
-        : txStatus === "mining"
-          ? "⛏ Mining on chain..."
-          : txStatus === "success"
-            ? "✅ Success!"
-            : txStatus === "reverted"
-              ? "❌ Transaction failed"
-              : "";
+      ? "🚀 Transaction sent..."
+      : txStatus === "mining"
+      ? "⛏ Mining on chain..."
+      : txStatus === "success"
+      ? "✅ Success!"
+      : txStatus === "reverted"
+      ? "❌ Transaction failed"
+      : "";
 
-  // handle tx success / error
-  useEffect(() => {
-    if (txStatus === "success") {
-      let successMsg = "";
+  // =====================================================================
+  //                         WEB3 READ ACTIONS
+  // =====================================================================
 
-      if (activeTx === "color" && activeTokenId !== null) {
-        updateSVG(activeTokenId); // UI overlay prevents user from changing active NFT during call
-      }
-      if (activeTx === "mint") {
-        const newId = BigInt(mintTx.logs[0].data);
-        const to = mintTx.logs[0].args.to;
-
-        const newNFT = async () => {
-          const newIndex = await addNewNFT(newId);
-          setIndexActiveNFT(newIndex);
-        };
-        newNFT();
-
-        successMsg = `⛏ Minted Token #${newId.toString()} to ${shortenAddr(to)}`;
-      }
-      pushLog({ type: "success", message: successMsg });
+  const handleResult = (res: any, label: string) => {
+    if (!res.ok) {
+      pushLog({ type: "error", message: res.error! });
+    } else {
+      pushLog({ type: "info", message: `${label}: ${res.data}` });
     }
+  };
 
-    if (txStatus === "reverted") {
-      pushLog({ type: "error", message: "❌ Transaction failed" });
-    }
-  }, [txStatus]);
+  /*
+  const READ_ACTIONS = {
+    totalSupply: async () => {
+      const res = await readTotalSupply();
+      handleResult(res, "📊 Total Supply");
+    },
 
-  // -----------------------------
-  /* NFTs owned by wallet */
-  // -----------------------------
+    ownerOf: async (arg: string) => {
+      const res = await readOwnerOf(BigInt(arg));
+      if (!res.ok) return handleResult(res, "Owner"); 
+
+      const short = shortenAddr(res.data!);
+      pushLog({ type: "info", message: `🔍 Owner: ${short}` });
+    },
+
+    balanceOf: async (arg: string) => {
+      const res = await readBalanceOf(arg);
+      handleResult(res, "Balance");
+    },
+  } as const;
+   */
+
+  // =====================================================================
+  //                         UI ACTION CONFIG
+  // =====================================================================
+
+  const UI_ACTIONS = makeActionConfig();
+
+  // write keys
+  const WRITE_KEYS = ["mint", "color", "transfer"] as const;
+  type WriteActionKey = (typeof WRITE_KEYS)[number];
+
+  const isWriteKey = (key: string): key is WriteActionKey =>
+    (WRITE_KEYS as readonly string[]).includes(key);
+
+  // =====================================================================
+  //                         NFT GALLERY
+  // =====================================================================
+
   const {
     userNFTs: myNFTs,
     isGalleryLoading,
@@ -138,33 +155,31 @@ export const DemoPage = () => {
   const activeTokenId =
     myNFTs.length > 0 ? myNFTs[indexActiveNFT].tokenId : null;
 
-  // -----------------------------
-  // modal & logs
-  // -----------------------------
+  // =====================================================================
+  //                         MODAL + LOG STATE
+  // =====================================================================
+
   const [modal, setModal] = useState<{
     open: boolean;
-    key: keyof typeof actions;
+    key: keyof typeof UI_ACTIONS;
   }>({
     open: false,
-    key: "mint", // we DO NOT want null
+    key: "mint",
   });
 
   const closeModal = () => {
     setModal((prev) => ({ ...prev, open: false }));
   };
 
-  const mode = actions[modal.key]; // never null
+  const mode = UI_ACTIONS[modal.key];
 
-  // log outputs
   const [logs, setLogs] = useState<LogEntry[]>([]);
-
-  const pushLog = (entry: LogEntry) => {
+  const pushLog = (entry: LogEntry) =>
     setLogs((prev) => [...prev, entry]);
-  };
 
-  // -----------------------------
-  // handle write & read UI callbacks
-  // -----------------------------
+  // =====================================================================
+  //                         WRITE + READ HANDLERS
+  // =====================================================================
 
   const handleWrite = ({
     key,
@@ -175,9 +190,8 @@ export const DemoPage = () => {
     argument: string;
     color: string;
   }) => {
-    if (activeTokenId === null) {
-      return;
-    }
+    if (activeTokenId === null) return;
+
     if (key === "mint") {
       const c = BigInt("0x" + color.slice(1));
       mintTx.mint(wallet, c);
@@ -204,19 +218,20 @@ export const DemoPage = () => {
     argument: string | null;
   }) => {
     if (!argument) {
-      // argument-less calls
-      const supply = await readTotalSupply();
-      pushLog({
-        type: "info",
-        message: `📊 Total Supply = ${supply}`,
-      });
+      const res = await readTotalSupply();
+      if (!res.ok) {
+        pushLog({ type: "error", message: res.error! });
+      } else {
+        pushLog({
+          type: "info",
+          message: `📊 Total Supply = ${res.data}`,
+        });
+      }
     } else {
-      // expects argument
       if (key === "ownerOf") {
         const res = await readOwnerOf(BigInt(argument));
         const owner = res !== null ? shortenAddr(res) : "None";
         pushLog({ type: "info", message: `🔍 Owner = ${owner}` });
-        readOwnerOf(BigInt(argument));
       }
 
       if (key === "balanceOf") {
@@ -224,6 +239,45 @@ export const DemoPage = () => {
       }
     }
   };
+
+  // =====================================================================
+  //                     EFFECT: TX STATUS LISTENER
+  // =====================================================================
+
+  useEffect(() => {
+    if (txStatus === "success") {
+      let successMsg = "";
+
+      if (activeTx === "color" && activeTokenId !== null) {
+        updateSVG(activeTokenId);
+      }
+
+      if (activeTx === "mint") {
+        const newId = BigInt(mintTx.logs[0].data);
+        const to = mintTx.logs[0].args.to;
+
+        const newNFT = async () => {
+          const newIndex = await addNewNFT(newId);
+          setIndexActiveNFT(newIndex);
+        };
+        newNFT();
+
+        successMsg = `⛏ Minted Token #${newId.toString()} to ${shortenAddr(
+          to
+        )}`;
+      }
+
+      pushLog({ type: "success", message: successMsg });
+    }
+
+    if (txStatus === "reverted") {
+      pushLog({ type: "error", message: "❌ Transaction failed" });
+    }
+  }, [txStatus]);
+
+  // =====================================================================
+  //                         JSX RETURN
+  // =====================================================================
 
   return (
     <>
@@ -237,7 +291,7 @@ export const DemoPage = () => {
         <div className="flex flex-col items-center gap-6">
           {/* Actinon Buttons */}
           <div className="flex flex-row items-center gap-3 ">
-            {Object.entries(actions)
+            {Object.entries(UI_ACTIONS)
               .filter(([_, action]) => action.topBar)
               .map(([key, action]) => (
                 <button
@@ -249,44 +303,37 @@ export const DemoPage = () => {
                       handleRead({ key: key, argument: null });
                     }
                   }}
-                  className={`
-                  btn ${key === "mint" ? "btn-primary" : "btn-secondary"} 
-                  flex items-center gap-2
-                `}
+                  className={`btn ${
+                    key === "mint" ? "btn-primary" : "btn-secondary"
+                  } flex items-center gap-2`}
                 >
                   {action.button}
                 </button>
               ))}
           </div>
-          
-          {/* NFT Preview*/}
-          <div
-            className="
-              w-80 h-76
-              flex justify-center
-              border border-default rounded-lg
-            "
-          >
+
+          {/* NFT Panel */}
+          <div className="w-80 h-76 flex justify-center border border-default rounded-lg">
             {isGalleryLoading ? (
               <div className="flex items-center">
-                <LoadingSpinner size={12} />
+                <LoadingSpinner size={36} />
               </div>
             ) : myNFTs.length === 0 ? (
-              <div className="flex items-center">
+              <div className="flex items-center fade-in">
                 <div className="flex flex-col gap-2 items-center">
                   <p>You don't own any Minis.</p>
                   <p>Mint your first 2day?</p>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col justify-center items-center gap-4">
+              <div className="flex flex-col justify-center items-center gap-4 animate-[fadeIn_0.5s_ease-out]">
                 <NFTCarosel
                   items={myNFTs}
                   index={indexActiveNFT}
                   onChange={setIndexActiveNFT}
                 />
                 <div className="flex gap-1 text-md">
-                  {Object.entries(actions)
+                  {Object.entries(UI_ACTIONS)
                     .filter(([_, action]) => !action.topBar)
                     .map(([key, action]) => (
                       <button
@@ -304,15 +351,8 @@ export const DemoPage = () => {
             )}
           </div>
 
-          {/* Action Log / Status Box */}
-          <div
-            className="
-              h-40 w-80
-              text-sm text-start 
-              border border-default rounded-lg 
-              overflow-y-auto overflow-x-hidden p-2
-              "
-          >
+          {/* Logs */}
+          <div className="h-40 w-80 text-sm text-start border border-default rounded-lg overflow-y-auto overflow-x-hidden p-2">
             {logs.length === 0 && (
               <p className="text-subtle text-center mt-2">No actions yet...</p>
             )}
@@ -324,8 +364,8 @@ export const DemoPage = () => {
                   log.type === "success"
                     ? "text-green-400"
                     : log.type === "error"
-                      ? "text-red-400"
-                      : "text-slate-300"
+                    ? "text-red-400"
+                    : "text-slate-300"
                 }`}
               >
                 {log.message}
@@ -335,10 +375,8 @@ export const DemoPage = () => {
 
           {/* About & Specs */}
           <div className="flex flex-col gap-4 w-1/2 min-w-[320px] text-start">
-            {/* Seperator */}
             <div className="h-[1px] border border-soft" />
 
-            {/* About */}
             <h3 className="font-semibold">About MiniNFT</h3>
             <ul className="list-cyber font-mono text-sm space-y-1 text-muted">
               <li>Mint + transfer + events</li>
@@ -353,10 +391,8 @@ export const DemoPage = () => {
               </li>
             </ul>
 
-            {/* Seperator */}
             <div className="h-[1px] border border-soft" />
 
-            {/* Technical Specifications */}
             <h3 className="font-semibold">Spec Sheet</h3>
             <ul className="list-cyber font-mono text-sm space-y-1 text-muted">
               <li>Bytecode Size: ~400 bytes</li>
@@ -397,6 +433,7 @@ export const DemoPage = () => {
           }}
         />
       )}
+
       {(txStatus === "wallet" || txStatus === "mining") && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999]">
           <div className="text-white text-lg font-mono animate-pulse">

@@ -1,4 +1,4 @@
-import type { UI_NFT } from "../data/ui_nfts";
+import type { UI_NFT } from "../data/UI_NFT";
 
 type NFTCarouselProps = {
   items: UI_NFT[];
@@ -33,7 +33,7 @@ export const NFTCarosel = ({ items, index, onChange }: NFTCarouselProps) => {
           key={nft.svg}
           src={nft.svg}
           alt={nft.label}
-          className="h-full w-full object-contain"
+          className="h-full w-full"
         />
       </div>
 

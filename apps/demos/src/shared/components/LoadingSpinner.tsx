@@ -2,7 +2,8 @@ export const LoadingSpinner = ({ size }: { size: number }) => {
   return (
     <div role="status" aria-label="loading">
       <svg
-        className={`w-${size} h-${size} stroke-accent animate-spin`}
+        style={{ width: size, height: size }}
+        className={`stroke-accent animate-spin`}
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

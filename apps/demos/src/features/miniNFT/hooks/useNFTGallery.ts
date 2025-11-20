@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useMyTokens } from "../web3/hooks/read";
 import { readSVG } from "../web3/actions/read";
 
-import { type UI_NFT } from "../data/ui_nfts";
+import { type UI_NFT } from "../data/UI_NFT";
 
 // feature hook
 export const useNFTGallery = (wallet: `0x${string}`) => {
@@ -50,7 +50,9 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
   }, [tokens, isTokensFetching]);
 
   const updateSVG = async (tokenId: bigint) => {
+    setIsGalleryLoading(true);
     const svg = await readSVG(tokenId);
+    setIsGalleryLoading(false);
 
     // ❗ TODO: error handling
     if (!svg) {

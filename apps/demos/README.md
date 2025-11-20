@@ -1,37 +1,120 @@
-────────────────────────────────────────
+# A2Z Blocks — Demos
 
-<Title + Description from DemoLayout>
+This project is part of the **A2Z Blocks** learning suite, focused on mastering the **EVM from first principles** while building real, interactive demos.
 
-[ Mint NFT ] [ Show Total Supply ] [ Owner of #ID ] [ View TokenURI ]
+## **MiniNFT — Yul-Powered Minimal NFT Demo**
 
-┌───────────────────────────────────────┐
-│ 🖼 NFT Preview │
-│ (image loaded from tokenURI/ipfs) │
-│ Token #3 • Owner: 0x1234…abcd │
-│ [ Copy address ] [ Open in IPFS ] │
-└───────────────────────────────────────┘
+A compact, educational NFT implementation built entirely in **Yul**.
 
-┌───────────────────────────────────────┐
-│ 📜 Action Log / Status Box │
-│ ✅ Minted token #3 to 0x1234…abcd │
-│ ✅ Total Supply = 3 │
-│ ⚠️ Error: Caller not allowed… │
-└───────────────────────────────────────┘
+### **🌐 Live Demo**
 
-────────────────────────────────────────
-Why Mini721 Exists
-• 100% Yul — no Solidity, no OZ
-• Gas-lean storage layout (single mapping)
-• Minimal ERC-721: mint + transfer + events
-• Teaches selector handling, sstore, logs
+_(Add your demo URL here when deployed)_
 
-────────────────────────────────────────
-Spec Sheet
-• Bytecode Size: ~400 bytes
-• Storage: 1 counter + 1 mapping
-• Events: Standard ERC-721 Transfer()
-• tokenURI: Static IPFS string baked in bytecode
+---
 
-────────────────────────────────────────
-[ 🔍 View Contract Code ] [ 📦 GitHub Repo ] [ 🌐 View Deployed Contract ]
-────────────────────────────────────────
+### **📦 Features**
+
+#### **Smart Contract (Yul)**
+
+- Minimal NFT implementation (not ERC-721 compliant)
+- Custom **bitpacked** storage:
+  - `totalSupply` packed with flags
+  - Address suffix authority bits
+  - 2-bit `emotionalState` encoding
+
+- Raw SVG output stored fully on-chain
+- `mint()`, `transfer()`, `setColor()`, and `svg()` functions
+- Realistic vs simplified mapping styles (linear + keccak)
+
+#### **Frontend (React + Wagmi + Viem)**
+
+- Wallet connect flow
+- Full NFT gallery for the connected wallet
+- On-chain SVG rendering via Base64
+- Carousel viewer for token navigation
+- Modal-driven actions:
+  - Mint
+  - Transfer
+  - Change color
+  - Read actions (`totalSupply`, `ownerOf`, `balanceOf`)
+
+- Action log with success/error feedback
+- Clean, atomic layout using Tailwind
+
+---
+
+### **🧪 Tech Stack**
+
+| Layer              | Tools                               |
+| ------------------ | ----------------------------------- |
+| **Smart Contract** | Yul, Foundry (deployment), ABI JSON |
+| **Frontend**       | React, TypeScript, Wagmi, Viem      |
+| **Styling**        | Tailwind, custom tokens             |
+| **Build**          | Vite                                |
+
+---
+
+### **⚠️ Disclaimer**
+
+This project is **not** ERC-721 compliant.
+It is intentionally simplified to make EVM mechanisms visible:
+
+- No interfaces
+- No safe transfers
+- No metadata standard
+- No marketplace compatibility
+
+MiniNFT tokens **will not show up in wallets** — by design.
+
+---
+
+### **🚀 Running the Project**
+
+#### Install dependencies
+
+```bash
+npm install
+```
+
+#### Start the frontend
+
+```bash
+npm run dev
+```
+
+#### Build for production
+
+```bash
+npm run build
+```
+
+Make sure your `.env` contains your Wagmi/Viem RPC config.
+
+---
+
+### **🧩 Read Actions (UI Layer)**
+
+All read calls are wrapped using a small helper (`handleResult`) to unify error and success output in the UI action log.
+
+Supported reads:
+
+- `totalSupply()`
+- `ownerOf(tokenId)`
+- `balanceOf(address)`
+
+---
+
+### **🎨 About the Demo**
+
+MiniNFT exists to teach:
+
+- low-level EVM storage access
+- calldata ABI decoding
+- events
+- reading/writing mappings by hand
+- Base64 encoded SVG return values
+- front-end ↔ smart contract integration
+
+It’s intentionally minimalistic and perfect for experimenting or extending.
+
+---

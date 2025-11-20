@@ -3,22 +3,18 @@ import { readContract } from "wagmi/actions";
 // local
 import { wagmiConfig } from "../../../../shared/web3/config";
 import { mini721ContractConfig as miniConfig } from "../abi";
+import { safeRead } from "../../../../shared/web3/helpers/safeRead";
 
 const svgToBase64 = (svg: string): string =>
   `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 
 export const readTotalSupply = async () => {
-  try {
-    const totalSupply = await readContract(wagmiConfig, {
+  return safeRead("Total Supply", () =>
+    readContract(wagmiConfig, {
       ...miniConfig,
       functionName: "totalSupply",
-    } as any);
-
-    return totalSupply;
-  } catch (err) {
-    console.error("❌ Failed to read SVG:", err);
-    return null;
-  }
+    } as any),
+  );
 };
 
 export const readSVG = async (tokenId: bigint) => {

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { demos } from "../data/demos";
+import { demos } from "../shared/data/demos";
 
-import { Account } from "../web3/wallet/account";
-import { WalletOptions } from "../web3/wallet/wallet-options";
+import { Account } from "../shared/web3/wallet/account";
+import { WalletOptions } from "../shared/web3/wallet/wallet-options";
 import { useAccount } from "wagmi";
 
 function ConnectWallet() {

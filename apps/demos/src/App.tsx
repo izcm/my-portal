@@ -7,7 +7,7 @@ import { WagmiProvider } from "wagmi";
 import { HomePage } from "./pages/HomePage";
 import { DemoPage } from "./pages/DemoPage";
 
-import { wagmiConfig } from "./web3/config";
+import { wagmiConfig } from "./shared/web3/config";
 
 const queryClient = new QueryClient();
 

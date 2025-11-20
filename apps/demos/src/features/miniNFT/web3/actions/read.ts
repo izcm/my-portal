@@ -1,7 +1,7 @@
 import { readContract } from "wagmi/actions";
 
 // local
-import { wagmiConfig } from "../../config";
+import { wagmiConfig } from "../../../../shared/web3/config";
 import { mini721ContractConfig as miniConfig } from "../abi";
 
 const svgToBase64 = (svg: string): string =>

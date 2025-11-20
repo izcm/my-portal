@@ -1,5 +1,5 @@
 import { mini721ContractConfig as miniConfig } from "../abi";
-import { useTx } from "../../helpers/useTx";
+import { useTx } from "../../../../shared/web3/helpers/useTx";
 
 export const useMint = (caller: string) => {
   const tx = useTx(miniConfig.abi);

@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseEventLogs } from "viem";
 
-import { mini721ContractConfig } from "../miniNFT/abi";
-
 export const useTx = (abi: readonly any[]) => {
   const [status, setStatus] = useState<
     "idle" | "wallet" | "sent" | "mining" | "success" | "reverted"

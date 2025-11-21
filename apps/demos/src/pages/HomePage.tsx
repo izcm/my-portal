@@ -13,35 +13,50 @@ function ConnectWallet() {
 
 export const HomePage = () => {
   return (
-    <div className="flex flex-col">
+    <div className="min-h-screen flex flex-col fade-in">
       <ConnectWallet />
+      
       {/* NAVBAR */}
-      <nav className="navbar flex items-center justify-between h-16 px-4 border-b border-default">
-        <span className="font-bold text-lg">A2Z Blocks — Demos</span>
-        <div className="flex gap-6 text-sm">
-          <Link to="/" className="ink">
-            Landing
-          </Link>
-        </div>
+      <nav className="flex items-center justify-between h-16 px-6 border-b border-default">
+        <span className="font-semibold text-lg glow">A2Z Blocks — Demos</span>
+        <Link to="/" className="btn btn-ghost text-sm">
+          Landing
+        </Link>
       </nav>
 
       {/* DEMO LIST */}
-      <main className="flex flex-col grow items-center py-10">
-        <h1 className="text-3xl font-semibold mb-6 glow">Available Demos</h1>
+      <main className="flex flex-col items-center py-12 grow">
+        <div className="w-full max-w-4xl flex flex-col items-center gap-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-semibold glow mb-2">Available Demos</h1>
+            <p className="text-muted">Choose a demo to explore Web3 development</p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-5xl p-4">
-          {demos.map((demo) => (
-            <Link
-              key={demo.id}
-              to={`/${demo.id}`}
-              className="border border-default rounded-xl p-6"
-            >
-              <h2 className="text-lg font-semibold">{demo.title}</h2>
-              <p className="text-dim text-sm mt-1">{demo.desc}</p>
-            </Link>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full px-6">
+            {demos.map((demo) => (
+              <Link
+                key={demo.id}
+                to={`/${demo.id}`}
+                className="
+                  border border-default rounded-xl p-6 bg-black/10
+                  hover:bg-black/20 hover:border-accent/40
+                  transition-all duration-200
+                  hover:-translate-y-1 hover:shadow-lg
+                  backdrop-blur-sm
+                "
+              >
+                <h2 className="text-lg font-semibold mb-2">{demo.title}</h2>
+                <p className="text-muted text-sm leading-relaxed">{demo.desc}</p>
+              </Link>
+            ))}
+          </div>
         </div>
       </main>
+
+      {/* FOOTER */}
+      <footer className="text-xs text-muted text-center py-6">
+        © 2025 A2Z Blocks — Humbly built.
+      </footer>
     </div>
   );
 };

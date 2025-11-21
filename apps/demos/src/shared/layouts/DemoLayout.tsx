@@ -12,6 +12,10 @@ type DemoLayoutProps = {
   codeUrl?: string;
   repoUrl?: string;
   contractUrl?: string;
+  // View switcher props
+  currentView?: "interactive" | "historical";
+  onViewChange?: (view: "interactive" | "historical") => void;
+  showViewSwitcher?: boolean;
 };
 
 const headerActions = [
@@ -41,6 +45,9 @@ export const DemoLayout = ({
   codeUrl,
   repoUrl,
   contractUrl,
+  currentView = "interactive",
+  onViewChange,
+  showViewSwitcher = false,
 }: DemoLayoutProps) => {
   const navigate = useNavigate();
 
@@ -50,16 +57,21 @@ export const DemoLayout = ({
           min-h-screen flex flex-col gap-2 items-center py-8 fade-in"
     >
       {/* TOPBAR */}
-      <header className="w-full max-w-4xl flex justify-between items-center px-4 mb-4 text-sm">
-        <button onClick={() => navigate(-1)} className="btn">
-          ← Back
-        </button>
-        <div className="flex gap-4">
+      <header className="w-full max-w-4xl flex justify-between items-center px-4 mb-4 text-sm relative">
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="btn">
+            ← Back
+          </button>
+        </div>
+
+        {/* CENTER - ACTION BUTTONS */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-4">
           {headerActions.map((item, i) => {
             const Icon = item.icon;
 
             const commonClasses =
-              "w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-soft hover:scale-108 transition-transform flex items-center justify-center";
+              "sm:w-12 sm:h-12 rounded-full overflow-hidden border border-soft hover:scale-108 transition-transform flex items-center justify-center";
 
             return item.onClick ? (
               <button
@@ -81,7 +93,36 @@ export const DemoLayout = ({
             );
           })}
         </div>
-        <span className="opacity-60">A2Z Blocks</span>
+
+        {/* RIGHT SIDE */}
+        <div className="flex justify-end">
+          {/* VIEW SWITCHER */}
+          {showViewSwitcher && onViewChange && (
+            <div className="flex border border-soft rounded-lg overflow-hidden">
+              <button
+                onClick={() => onViewChange("interactive")}
+                className={`px-4 py-2 text-sm transition-colors ${
+                  currentView === "interactive"
+                    ? "bg-primary text-surface font-medium"
+                    : "text-muted hover:text-primary hover:bg-surface/30"
+                }`}
+              >
+                Interactive
+              </button>
+              <button
+                onClick={() => onViewChange("historical")}
+                className={`px-4 py-2 text-sm transition-colors ${
+                  currentView === "historical"
+                    ? "bg-primary text-surface font-medium"
+                    : "text-muted hover:text-primary hover:bg-surface/30"
+                }`}
+              >
+                Historical
+              </button>
+            </div>
+          )}
+        </div>
+      
       </header>
 
       {/* MAIN CONTENT */}

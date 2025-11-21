@@ -36,11 +36,31 @@ export default function App() {
           "
         >
           <span className="font-bold text-lg hero-kicker">A2Z Blocks</span>
-          <div className="flex gap-6 text-sm">
-            <a href="#" className="ink">
+          <div className="flex gap-4 text-sm">
+            <a 
+              href="#" 
+              className="
+                px-3 py-1.5 rounded-lg
+                text-muted hover:text-primary
+                border border-soft hover:border-default
+                transition-all duration-200 ease-out
+                hover:bg-muted/40 hover:backdrop-blur-sm
+                hover:shadow-sm
+              "
+            >
               About
             </a>
-            <a href="#" className="ink">
+            <a 
+              href="#" 
+              className="
+                px-3 py-1.5 rounded-lg
+                text-muted hover:text-primary
+                border border-soft hover:border-default
+                transition-all duration-200 ease-out
+                hover:bg-muted/40 hover:backdrop-blur-sm
+                hover:shadow-sm
+              "
+            >
               Contact
             </a>
           </div>

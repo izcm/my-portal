@@ -37,6 +37,7 @@ export type LogEntry = {
   message: string | React.ReactNode;
 };
 
+// ❗ TODO: add historical data dashboard / lookup view
 export const DemoPage = () => {
   // -----------------------------
   // routing + wallet connection
@@ -45,6 +46,9 @@ export const DemoPage = () => {
   const { address: wallet, isConnected } = useAccount();
   const { demoId } = useParams();
   const demo = demos.find((d) => d.id === demoId);
+
+  // View switcher state
+  const [currentView, setCurrentView] = useState<"interactive" | "historical">("interactive");
 
   // early exits
   if (!demo) {
@@ -95,15 +99,20 @@ export const DemoPage = () => {
   //  WEB3 READ ACTIONS
   // ===================================
 
-  const handleResult = (res: any, key: ReadActionKey, label: string) => {
+  const handleResult = (res: any, key: ActionKey) => {
     if (!res.ok) {
       pushLog({ type: "error", message: res.error! });
     } else {
+      const Icon = UI_ACTIONS[key].icon;
+      const label = UI_ACTIONS[key].label;
+
+      // if address => const short = shortenAddr(res.data!);
+      
       pushLog({
         type: "info",
         message: (
           <span className="flex items-center gap-1">
-            {readOnSuccessMsg(key)}
+            {Icon && <Icon className="w-4 h-4" />}
             <span>{label}</span>
           </span>
         ),
@@ -111,34 +120,23 @@ export const DemoPage = () => {
     }
   };
 
-  const readOnSuccessMsg = (key: ReadActionKey) => {
-    const Icon = UI_ACTIONS[key].icon;
-    console.log(Icon);
-    return (
-      <span className="flex items-center gap-1">
-        {Icon && <Icon className="w-4 h-4" />}
-      </span>
-    );
-  };
-
   const READ_ACTIONS = {
     totalSupply: async () => {
       const res = await readTotalSupply();
       console.log(res);
-      handleResult(res, "totalSupply", "Total Supply");
+      handleResult(res, "totalSupply");
     },
 
     ownerOf: async (arg: string) => {
       const res = await readOwnerOf_(BigInt(arg));
-      if (!res.ok) return handleResult(res, "ownerOf", "Owner");
+      if (!res.ok) return handleResult(res, "ownerOf");
 
-      const short = shortenAddr(res.data!);
-      pushLog({ type: "info", message: `🔍 Owner: ${short}` });
+      // ushLog({ type: "info", message: `🔍 Owner: ${short}` });
     },
 
     balanceOf: async (arg: string) => {
       const res = await readBalanceOf(arg);
-      handleResult(res, "balanceOf", "Balance");
+      handleResult(res, "balanceOf");
     },
   } as const;
 
@@ -148,16 +146,18 @@ export const DemoPage = () => {
 
   const UI_ACTIONS = makeActionConfig();
 
-  // write keys
+  // All action keys in one place
+  const ALL_KEYS = ["mint", "color", "transfer", "balanceOf", "ownerOf", "totalSupply"] as const;
+  type ActionKey = (typeof ALL_KEYS)[number];
+
   const WRITE_KEYS = ["mint", "color", "transfer"] as const;
+  const READ_KEYS = ["balanceOf", "ownerOf", "totalSupply"] as const;
+
   type WriteActionKey = (typeof WRITE_KEYS)[number];
+  type ReadActionKey = (typeof READ_KEYS)[number];
 
   const isWriteKey = (key: string): key is WriteActionKey =>
     (WRITE_KEYS as readonly string[]).includes(key);
-
-  // read keys
-  const READ_KEYS = ["balanceOf", "ownerOf", "totalSupply"] as const;
-  type ReadActionKey = (typeof READ_KEYS)[number];
 
   const isReadKey = (key: string): key is ReadActionKey =>
     (READ_KEYS as readonly string[]).includes(key);
@@ -305,6 +305,9 @@ export const DemoPage = () => {
         codeUrl="https://example.com/code"
         repoUrl="https://github.com/a2zblocks/example"
         contractUrl="https://etherscan.io/address/0x123"
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        showViewSwitcher={true}
       >
         <div className="flex flex-col items-center gap-6">
           {/* Actinon Buttons */}
@@ -339,7 +342,7 @@ export const DemoPage = () => {
           <div className="w-80 h-76 flex justify-center border border-default rounded-lg">
             {isGalleryLoading ? (
               <div className="flex items-center">
-                <LoadingSpinner size={36} />
+                <LoadingSpinner size={44} />
               </div>
             ) : myNFTs.length === 0 ? (
               <div className="flex items-center fade-in">
@@ -377,7 +380,7 @@ export const DemoPage = () => {
           {/* Logs */}
           <div className="h-40 w-80 text-sm text-start border border-default rounded-lg overflow-y-auto overflow-x-hidden p-2">
             {logs.length === 0 && (
-              <p className="text-subtle text-center mt-2">No actions yet...</p>
+              <p className="text-muted text-center mt-2">No actions yet...</p>
             )}
 
             {logs.map((log, i) => (
@@ -434,7 +437,7 @@ export const DemoPage = () => {
             <p className="flex items-center gap-2">
               <CircleAlert className="w-4 h-4" />
               <strong>NB:</strong>
-              Though MiniNFT is an NFT, it does not comply with the ERC721
+              MiniNFT is an NFT, but it does not comply with the ERC721
               standard.
             </p>
 

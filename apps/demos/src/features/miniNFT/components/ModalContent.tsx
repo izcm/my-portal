@@ -99,7 +99,15 @@ export const NFTModal = ({
               <input
                 placeholder={mode.placeholder}
                 onChange={(e) => setReadArgument(e.target.value)}
-                className="border border-default rounded-lg p-1 bg-black/30"
+                className="
+                  border border-[var(--border-default)] rounded-lg p-2 
+                  bg-[var(--bg-surface)]
+                  text-[var(--text-primary)]
+                  placeholder:text-[var(--text-muted)]
+                  transition-all duration-200
+                  hover:border-[color-mix(in_oklab,var(--accent)_15%,var(--border-default)_85%)]
+                  hover:bg-[color-mix(in_oklab,var(--bg-surface)_95%,var(--accent)_5%)]
+                "
               />
             </div>
 

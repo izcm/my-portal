@@ -92,7 +92,7 @@ export const NFTModal = ({
           </div>
         ) : (
           /* OTHER MODAL */
-          <div className="flex flex-col items-center gap-4 p-8">
+          <div className="flex flex-col items-center gap-4 p-6">
             <div className="flex flex-col gap-4 self-stretch mx-4 my-2">
               <span>{mode.title}</span>
 

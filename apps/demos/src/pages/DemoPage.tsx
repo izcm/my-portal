@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 import {
   readTotalSupply,
   readOwnerOf,
+  readOwnerOf_,
   readBalanceOf,
 } from "../features/miniNFT/web3/actions/read";
 import {
@@ -33,14 +34,12 @@ export type LogEntry = {
   message: string;
 };
 
-// =====================================================================
-//                         COMPONENT START
-// =====================================================================
 
 export const DemoPage = () => {
   // -----------------------------
   // routing + wallet connection
   // -----------------------------
+  
   const { address: wallet, isConnected } = useAccount();
   const { demoId } = useParams();
   const demo = demos.find((d) => d.id === demoId);
@@ -56,13 +55,10 @@ export const DemoPage = () => {
     return <p className="text-center mt-10">Please connect a wallet first.</p>;
   }
 
-  // =====================================================================
-  //                         WEB3 TX HOOKS
-  // =====================================================================
+  // ===================================
+  //  WEB3 TX HOOKS
+  // ===================================
 
-  // -----------------------------
-  // web3 tx & lifecycle
-  // -----------------------------
   const mintTx = useMint(wallet);
   const transferTx = useTransfer(wallet);
   const setColorTx = useSetColor(wallet);
@@ -75,27 +71,27 @@ export const DemoPage = () => {
     activeTx === "mint"
       ? mintTx.status
       : activeTx === "color"
-      ? setColorTx.status
-      : activeTx === "transfer"
-      ? transferTx.status
-      : null;
+        ? setColorTx.status
+        : activeTx === "transfer"
+          ? transferTx.status
+          : null;
 
   const txMessage =
     txStatus === "wallet"
       ? "🔐 Waiting for wallet..."
       : txStatus === "sent"
-      ? "🚀 Transaction sent..."
-      : txStatus === "mining"
-      ? "⛏ Mining on chain..."
-      : txStatus === "success"
-      ? "✅ Success!"
-      : txStatus === "reverted"
-      ? "❌ Transaction failed"
-      : "";
+        ? "🚀 Transaction sent..."
+        : txStatus === "mining"
+          ? "⛏ Mining on chain..."
+          : txStatus === "success"
+            ? "✅ Success!"
+            : txStatus === "reverted"
+              ? "❌ Transaction failed"
+              : "";
 
-  // =====================================================================
-  //                         WEB3 READ ACTIONS
-  // =====================================================================
+  // ===================================
+  //  WEB3 READ ACTIONS
+  // ===================================
 
   const handleResult = (res: any, label: string) => {
     if (!res.ok) {
@@ -105,7 +101,6 @@ export const DemoPage = () => {
     }
   };
 
-  /*
   const READ_ACTIONS = {
     totalSupply: async () => {
       const res = await readTotalSupply();
@@ -113,7 +108,7 @@ export const DemoPage = () => {
     },
 
     ownerOf: async (arg: string) => {
-      const res = await readOwnerOf(BigInt(arg));
+      const res = await readOwnerOf_(BigInt(arg));
       if (!res.ok) return handleResult(res, "Owner"); 
 
       const short = shortenAddr(res.data!);
@@ -125,11 +120,10 @@ export const DemoPage = () => {
       handleResult(res, "Balance");
     },
   } as const;
-   */
 
-  // =====================================================================
-  //                         UI ACTION CONFIG
-  // =====================================================================
+  // ===================================
+  //  UI ACTION CONFIG
+  // ===================================
 
   const UI_ACTIONS = makeActionConfig();
 
@@ -140,9 +134,16 @@ export const DemoPage = () => {
   const isWriteKey = (key: string): key is WriteActionKey =>
     (WRITE_KEYS as readonly string[]).includes(key);
 
-  // =====================================================================
-  //                         NFT GALLERY
-  // =====================================================================
+  // read keys
+  const READ_KEYS = ["balanceOf", "ownerOf", "totalSupply"] as const;
+  type ReadActionKey = (typeof READ_KEYS)[number];
+
+  const isReadKey = (key: string): key is ReadActionKey =>
+    (READ_KEYS as readonly string[]).includes(key);
+
+  // ===================================
+  //  NFT GALLERY
+  // ===================================
 
   const {
     userNFTs: myNFTs,
@@ -155,9 +156,9 @@ export const DemoPage = () => {
   const activeTokenId =
     myNFTs.length > 0 ? myNFTs[indexActiveNFT].tokenId : null;
 
-  // =====================================================================
-  //                         MODAL + LOG STATE
-  // =====================================================================
+  // ===================================
+  //  MODAL + LOG STATE
+  // ===================================
 
   const [modal, setModal] = useState<{
     open: boolean;
@@ -174,12 +175,11 @@ export const DemoPage = () => {
   const mode = UI_ACTIONS[modal.key];
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const pushLog = (entry: LogEntry) =>
-    setLogs((prev) => [...prev, entry]);
+  const pushLog = (entry: LogEntry) => setLogs((prev) => [...prev, entry]);
 
-  // =====================================================================
-  //                         WRITE + READ HANDLERS
-  // =====================================================================
+  // ===================================
+  //  WRITE + READ HANDLERS
+  // ===================================
 
   const handleWrite = ({
     key,
@@ -210,39 +210,36 @@ export const DemoPage = () => {
     }
   };
 
-  const handleRead = async ({
+ const handleRead = async ({
     key,
     argument,
   }: {
     key: string;
     argument: string | null;
   }) => {
-    if (!argument) {
-      const res = await readTotalSupply();
-      if (!res.ok) {
-        pushLog({ type: "error", message: res.error! });
-      } else {
-        pushLog({
-          type: "info",
-          message: `📊 Total Supply = ${res.data}`,
-        });
-      }
-    } else {
-      if (key === "ownerOf") {
-        const res = await readOwnerOf(BigInt(argument));
-        const owner = res !== null ? shortenAddr(res) : "None";
-        pushLog({ type: "info", message: `🔍 Owner = ${owner}` });
-      }
-
-      if (key === "balanceOf") {
-        readBalanceOf(argument);
-      }
+    if(!isReadKey(key)){
+      throw Error(`${key} not of type ReadKey!`);
     }
+
+    const fn = READ_ACTIONS[key];
+
+    // argument-less func eg. totalSupply
+    if(key === "totalSupply") {
+      const fn0 = READ_ACTIONS.totalSupply; 
+      return fn0(); // fn(argument!) would also work but... being nice to typescript
+    }
+
+    // these two need arguments
+    if (!argument) {
+      throw new Error(`${key} requires an argument`);
+    } 
+    
+    return fn(argument!);
   };
 
-  // =====================================================================
-  //                     EFFECT: TX STATUS LISTENER
-  // =====================================================================
+  // ===================================
+  //  EFFECT: TX STATUS LISTENER
+  // ===================================
 
   useEffect(() => {
     if (txStatus === "success") {
@@ -250,6 +247,8 @@ export const DemoPage = () => {
 
       if (activeTx === "color" && activeTokenId !== null) {
         updateSVG(activeTokenId);
+
+        successMsg = `🎨 Color Change: Token #${activeTokenId}`
       }
 
       if (activeTx === "mint") {
@@ -263,7 +262,7 @@ export const DemoPage = () => {
         newNFT();
 
         successMsg = `⛏ Minted Token #${newId.toString()} to ${shortenAddr(
-          to
+          to,
         )}`;
       }
 
@@ -275,9 +274,9 @@ export const DemoPage = () => {
     }
   }, [txStatus]);
 
-  // =====================================================================
-  //                         JSX RETURN
-  // =====================================================================
+  // ===================================
+  //  JSX RETURN
+  // ===================================
 
   return (
     <>
@@ -364,8 +363,8 @@ export const DemoPage = () => {
                   log.type === "success"
                     ? "text-green-400"
                     : log.type === "error"
-                    ? "text-red-400"
-                    : "text-slate-300"
+                      ? "text-red-400"
+                      : "text-slate-300"
                 }`}
               >
                 {log.message}

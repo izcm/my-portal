@@ -13,11 +13,13 @@ export const useMyTokens = (address?: `0x${string}`) => {
     }
 
     const load = async () => {
-      // call fetchMyTokens
       setIsFetching(true);
-      const result = await fetchMyTokens(address);
-      setTokens(result);
-      setIsFetching(false);
+      try {
+        const result = await fetchMyTokens(address);
+        setTokens(result);
+      } finally {
+        setIsFetching(false);
+      }
     };
 
     load();

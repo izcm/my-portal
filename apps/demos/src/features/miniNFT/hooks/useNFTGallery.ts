@@ -32,7 +32,9 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
 
       const nfts = await Promise.all(
         tokens.map(async (id) => {
-          const svg = await readSVG(id);
+          const res = await readSVG(id);
+          const svg = res.data;
+
           return {
             tokenId: id,
             label: `Token #${id}`,
@@ -51,13 +53,15 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
 
   const updateSVG = async (tokenId: bigint) => {
     setIsGalleryLoading(true);
-    const svg = await readSVG(tokenId);
+    const res = await readSVG(tokenId);
     setIsGalleryLoading(false);
 
-    // ❗ TODO: error handling
-    if (!svg) {
+    if (!res.ok) {
+      // optional: surface error somewhere
       return;
     }
+
+    const svg = res.data!;
 
     setUserNFTs((prev) =>
       prev.map((nft) => (nft.tokenId === tokenId ? { ...nft, svg } : nft)),
@@ -75,7 +79,7 @@ export const useNFTGallery = (wallet: `0x${string}`) => {
         owned: true,
       } as UI_NFT;
 
-      indexAfterAdd = prev.length; // showcase the added NFT
+      indexAfterAdd = prev.length;
       return [...prev, newNFT];
     });
 

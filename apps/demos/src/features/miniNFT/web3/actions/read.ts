@@ -18,21 +18,31 @@ export const readTotalSupply = async () => {
 };
 
 export const readSVG = async (tokenId: bigint) => {
-  try {
-    const svgRaw = await readContract(wagmiConfig, {
+  return safeRead("SVG", async () => {
+    const raw = await readContract(wagmiConfig, {
       ...miniConfig,
       functionName: "svg",
       args: [tokenId],
-    } as any); // typescript complains about auth list
+    } as any);
 
-    if (typeof svgRaw !== "string") return null;
+    if (typeof raw !== "string") {
+      throw new Error("Invalid SVG Format");
+    }
 
-    // encode to Base64
-    return svgToBase64(svgRaw);
-  } catch (err) {
-    console.error("❌ Failed to read SVG:", err);
-    return null;
-  }
+    return svgToBase64(raw);
+  });
+};
+
+export const readOwnerOf_ = async (tokenId: bigint) => {
+  return safeRead("Owner", async () => {
+    const owner = await readContract(wagmiConfig, {
+      ...miniConfig,
+      functionName: "ownerOf",
+      args: [tokenId],
+    } as any);
+
+    return owner as `0x${string}`;
+  });
 };
 
 export const readOwnerOf = async (tokenId: bigint) => {
@@ -51,18 +61,13 @@ export const readOwnerOf = async (tokenId: bigint) => {
 };
 
 export const readBalanceOf = async (address: string) => {
-  try {
-    const balance = await readContract(wagmiConfig, {
+  return safeRead("Balance", () => {
+    return readContract(wagmiConfig, {
       ...miniConfig,
       functionName: "balanceOf",
       args: [address],
-    } as any); // typescript complains about auth list
-
-    return balance;
-  } catch (err) {
-    console.error("❌ Failed to read balance:", err);
-    return null;
-  }
+    } as any);
+  });
 };
 
 export const fetchMyTokens = async (address: `0x${string}`) => {

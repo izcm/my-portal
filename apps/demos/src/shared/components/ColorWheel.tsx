@@ -52,15 +52,30 @@ export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
 
     if (!marker) return;
 
+    // Outer ring with glow effect
+    ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
+    ctx.shadowBlur = 8;
     ctx.beginPath();
-    ctx.arc(marker.x, marker.y, 6, 0, Math.PI * 2);
+    ctx.arc(marker.x, marker.y, 8, 0, Math.PI * 2);
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
     ctx.stroke();
 
+    // Reset shadow for inner elements
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+
+    // Inner ring
     ctx.beginPath();
-    ctx.arc(marker.x, marker.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = "white";
+    ctx.arc(marker.x, marker.y, 5, 0, Math.PI * 2);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.stroke();
+
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(marker.x, marker.y, 2, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
     ctx.fill();
   }, [marker, size]);
 
@@ -93,40 +108,72 @@ export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
 
   return (
     <div
+      className="relative transition-all duration-300 hover:scale-105"
       style={{
-        position: "relative",
         width: size,
         height: size,
       }}
     >
-      {/* actual color wheel */}
-      <canvas
-        ref={canvasRef}
-        width={size}
-        height={size}
-        onClick={handleClick}
+      {/* Outer glow ring */}
+      <div
+        className="absolute inset-0 rounded-full opacity-60"
         style={{
-          borderRadius: "50%",
-          cursor: "crosshair",
-          position: "absolute",
-          top: 0,
-          left: 0,
+          background: `
+            radial-gradient(
+              circle at center,
+              transparent 70%,
+              color-mix(in oklab, var(--accent) 20%, transparent) 85%,
+              color-mix(in oklab, var(--accent) 40%, transparent) 95%,
+              transparent 100%
+            )
+          `,
+          filter: 'blur(4px)',
         }}
       />
+      
+      {/* Main color wheel container */}
+      <div
+        className="relative rounded-full"
+        style={{
+          width: size,
+          height: size,
+          border: '1px solid color-mix(in oklab, var(--border-default) 80%, var(--accent) 20%)',
+          boxShadow: `
+            0 2px 8px rgba(109, 117, 255, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.1)
+          `,
+        }}
+      >
+        {/* actual color wheel */}
+        <canvas
+          ref={canvasRef}
+          width={size}
+          height={size}
+          onClick={handleClick}
+          className="cursor-crosshair transition-opacity duration-200 hover:opacity-90"
+          style={{
+            borderRadius: "50%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+        />
 
-      {/* transparent canvas JUST for the marker */}
-      <canvas
-        ref={markerRef}
-        width={size}
-        height={size}
-        style={{
-          borderRadius: "50%",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          pointerEvents: "none", // clicks pass through
-        }}
-      />
+        {/* transparent canvas JUST for the marker */}
+        <canvas
+          ref={markerRef}
+          width={size}
+          height={size}
+          style={{
+            borderRadius: "50%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            pointerEvents: "none", // clicks pass through
+          }}
+        />
+      </div>
     </div>
   );
 };

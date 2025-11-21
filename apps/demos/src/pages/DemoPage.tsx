@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 
+// icons
+import { CircleAlert } from "lucide-react";
+
 // local (web3 read + write)
 import {
   readTotalSupply,
@@ -427,12 +430,17 @@ export const DemoPage = () => {
           </div>
 
           {/* DISCLAIMER */}
-          <div className="border-t border-b border-default text-accent my-8 px-2 py-4">
-            <p>
-              ⚠ <strong>NB:</strong> Though MiniNFT is an NFT, it does not
-              comply with the ERC721 standard.
+          <div className="border-t border-b border-default text-accent my-8 px-2 py-4 space-y-1">
+            <p className="flex items-center gap-2">
+              <CircleAlert className="w-4 h-4" />
+              <strong>NB:</strong>
+              Though MiniNFT is an NFT, it does not comply with the ERC721
+              standard.
             </p>
-            <p>Minis will not display in any wallet. 👻</p>
+
+            <p className="pl-6 text-accent/80">
+              Minis will not display in any wallet.
+            </p>
           </div>
         </div>
       </DemoLayout>

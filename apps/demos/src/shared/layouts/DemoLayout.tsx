@@ -97,26 +97,46 @@ export const DemoLayout = ({
         {/* ACTION BUTTONS */}
         <div
           className="
-            flex flex-col sm:flex-row flex-wrap gap-3 
-            sm:w-auto w-1/2 mt-4 text-sm
-            "
+            flex flex-col sm:flex-row 
+            gap-3 sm:gap-4
+            w-full max-w-md sm:max-w-none sm:w-auto 
+            mt-4 text-sm
+          "
         >
           {codeUrl && (
-            <a className="btn btn-ghost" href={codeUrl} target="_blank">
-              🔍 View Code
+            <a
+              className="btn btn-ghost flex items-center justify-center gap-3 w-full sm:w-auto py-3 px-6"
+              href={codeUrl}
+              target="_blank"
+            >
+              <Code className="w-4 h-4 opacity-80" />
+              <span>View Code</span>
             </a>
           )}
+
           {repoUrl && (
-            <a className="btn btn-ghost" href={repoUrl} target="_blank">
-              📦 GitHub Repo
+            <a
+              className="btn btn-ghost flex items-center justify-center gap-3 w-full sm:w-auto py-3 px-6"
+              href={repoUrl}
+              target="_blank"
+            >
+              <Github className="w-4 h-4 opacity-80" />
+              <span>GitHub Repo</span>
             </a>
           )}
+
           {contractUrl && (
-            <a className="btn btn-ghost" href={contractUrl} target="_blank">
-              🌐 Contract Explorer
+            <a
+              className="btn btn-ghost flex items-center justify-center gap-3 w-full sm:w-auto py-3 px-6"
+              href={contractUrl}
+              target="_blank"
+            >
+              <Link className="w-4 h-4 opacity-80" />
+              <span>Contract Explorer</span>
             </a>
           )}
         </div>
+
       </main>
 
       {/* FOOTER */}

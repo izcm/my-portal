@@ -21,18 +21,21 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     <div
       className="
         fixed inset-0 z-50 flex items-center justify-center
-        bg-black/60 backdrop-blur-sm 
+        bg-black/50 backdrop-blur-sm 
         animate-fadeIn
       "
-      onClick={onClose} // click outside closes
+      onClick={onClose}
     >
       <div
         className="
-          bg-secondary border border-default rounded-xl
+          bg-[var(--bg-surface)] 
+          border border-[var(--border-default)]
+          rounded-lg
           max-w-[90%] 
           min-w-[400px]
+          shadow-lg
         "
-        onClick={(e) => e.stopPropagation()} // prevent close when clicking modal
+        onClick={(e) => e.stopPropagation()}
       >
         {children}
       </div>

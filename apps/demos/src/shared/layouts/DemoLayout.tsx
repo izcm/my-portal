@@ -2,6 +2,9 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
+// ions
+import { Link, Code, Github } from "lucide-react";
+
 type DemoLayoutProps = {
   title: string;
   desc: string;
@@ -13,19 +16,19 @@ type DemoLayoutProps = {
 
 const headerActions = [
   {
-    logo: "icons/code_brackets.svg",
+    icon: Code,
     onClick: () => {
       console.log("Opening modal...");
     },
     alt: "Contract Code",
   },
   {
-    logo: "/icons/github.svg",
+    icon: Github,
     link: "https://github.com/izcm/yul-miniNFT",
     alt: "Github Repository",
   },
   {
-    logo: "/icons/chain.svg",
+    icon: Link,
     link: "https://etherscan.io/",
     alt: "NFT etherscan link",
   },
@@ -53,6 +56,8 @@ export const DemoLayout = ({
         </button>
         <div className="flex gap-4">
           {headerActions.map((item, i) => {
+            const Icon = item.icon;
+
             const commonClasses =
               "w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-soft hover:scale-108 transition-transform flex items-center justify-center";
 
@@ -62,11 +67,7 @@ export const DemoLayout = ({
                 onClick={item.onClick}
                 className={`${commonClasses} cursor-pointer`}
               >
-                <img
-                  src={item.logo}
-                  alt={item.alt}
-                  className="w-full h-full object-cover"
-                />
+                <Icon />
               </button>
             ) : (
               <a
@@ -75,11 +76,7 @@ export const DemoLayout = ({
                 target="_blank"
                 className={commonClasses}
               >
-                <img
-                  src={item.logo}
-                  alt={item.alt}
-                  className="w-full h-full object-cover"
-                />
+                <Icon />
               </a>
             );
           })}

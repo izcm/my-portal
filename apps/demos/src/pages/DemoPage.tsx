@@ -31,15 +31,14 @@ import { shortenAddr } from "../shared/utils/strings";
 // -----------------------------
 export type LogEntry = {
   type: "success" | "error" | "info";
-  message: string;
+  message: string | React.ReactNode;
 };
-
 
 export const DemoPage = () => {
   // -----------------------------
   // routing + wallet connection
   // -----------------------------
-  
+
   const { address: wallet, isConnected } = useAccount();
   const { demoId } = useParams();
   const demo = demos.find((d) => d.id === demoId);
@@ -93,23 +92,42 @@ export const DemoPage = () => {
   //  WEB3 READ ACTIONS
   // ===================================
 
-  const handleResult = (res: any, label: string) => {
+  const handleResult = (res: any, key: ReadActionKey, label: string) => {
     if (!res.ok) {
       pushLog({ type: "error", message: res.error! });
     } else {
-      pushLog({ type: "info", message: `${label}: ${res.data}` });
+      pushLog({
+        type: "info",
+        message: (
+          <span className="flex items-center gap-1">
+            {readOnSuccessMsg(key)}
+            <span>{label}</span>
+          </span>
+        ),
+      });
     }
+  };
+
+  const readOnSuccessMsg = (key: ReadActionKey) => {
+    const Icon = UI_ACTIONS[key].icon;
+    console.log(Icon);
+    return (
+      <span className="flex items-center gap-1">
+        {Icon && <Icon className="w-4 h-4" />}
+      </span>
+    );
   };
 
   const READ_ACTIONS = {
     totalSupply: async () => {
       const res = await readTotalSupply();
-      handleResult(res, "📊 Total Supply");
+      console.log(res);
+      handleResult(res, "totalSupply", "Total Supply");
     },
 
     ownerOf: async (arg: string) => {
       const res = await readOwnerOf_(BigInt(arg));
-      if (!res.ok) return handleResult(res, "Owner"); 
+      if (!res.ok) return handleResult(res, "ownerOf", "Owner");
 
       const short = shortenAddr(res.data!);
       pushLog({ type: "info", message: `🔍 Owner: ${short}` });
@@ -117,7 +135,7 @@ export const DemoPage = () => {
 
     balanceOf: async (arg: string) => {
       const res = await readBalanceOf(arg);
-      handleResult(res, "Balance");
+      handleResult(res, "balanceOf", "Balance");
     },
   } as const;
 
@@ -210,30 +228,30 @@ export const DemoPage = () => {
     }
   };
 
- const handleRead = async ({
+  const handleRead = async ({
     key,
     argument,
   }: {
     key: string;
     argument: string | null;
   }) => {
-    if(!isReadKey(key)){
+    if (!isReadKey(key)) {
       throw Error(`${key} not of type ReadKey!`);
     }
 
     const fn = READ_ACTIONS[key];
 
     // argument-less func eg. totalSupply
-    if(key === "totalSupply") {
-      const fn0 = READ_ACTIONS.totalSupply; 
+    if (key === "totalSupply") {
+      const fn0 = READ_ACTIONS.totalSupply;
       return fn0(); // fn(argument!) would also work but... being nice to typescript
     }
 
     // these two need arguments
     if (!argument) {
       throw new Error(`${key} requires an argument`);
-    } 
-    
+    }
+
     return fn(argument!);
   };
 
@@ -248,12 +266,12 @@ export const DemoPage = () => {
       if (activeTx === "color" && activeTokenId !== null) {
         updateSVG(activeTokenId);
 
-        successMsg = `🎨 Color Change: Token #${activeTokenId}`
+        successMsg = `🎨 Color Change: Token #${activeTokenId}`;
       }
 
       if (activeTx === "mint") {
         const newId = BigInt(mintTx.logs[0].data);
-        const to = mintTx.logs[0].args.to;
+        const to = (mintTx.logs[0].args as { to: string }).to;
 
         const newNFT = async () => {
           const newIndex = await addNewNFT(newId);
@@ -261,9 +279,7 @@ export const DemoPage = () => {
         };
         newNFT();
 
-        successMsg = `⛏ Minted Token #${newId.toString()} to ${shortenAddr(
-          to,
-        )}`;
+        successMsg = ` Minted Token #${newId.toString()} to ${shortenAddr(to)}`;
       }
 
       pushLog({ type: "success", message: successMsg });
@@ -292,23 +308,28 @@ export const DemoPage = () => {
           <div className="flex flex-row items-center gap-3 ">
             {Object.entries(UI_ACTIONS)
               .filter(([_, action]) => action.topBar)
-              .map(([key, action]) => (
-                <button
-                  key={key}
-                  onClick={async () => {
-                    if (action.modal) {
-                      setModal({ open: true, key: key as any });
-                    } else {
-                      handleRead({ key: key, argument: null });
-                    }
-                  }}
-                  className={`btn ${
-                    key === "mint" ? "btn-primary" : "btn-secondary"
-                  } flex items-center gap-2`}
-                >
-                  {action.button}
-                </button>
-              ))}
+              .map(([key, action]) => {
+                const Icon = action?.icon;
+
+                return (
+                  <button
+                    key={key}
+                    onClick={async () => {
+                      if (action.modal) {
+                        setModal({ open: true, key: key as any });
+                      } else {
+                        handleRead({ key: key, argument: null });
+                      }
+                    }}
+                    className={`btn ${
+                      key === "mint" ? "btn-primary" : "btn-secondary"
+                    } flex items-center gap-2`}
+                  >
+                    {Icon && <Icon className="w-4 h-4" />}
+                    {action.button}
+                  </button>
+                );
+              })}
           </div>
 
           {/* NFT Panel */}

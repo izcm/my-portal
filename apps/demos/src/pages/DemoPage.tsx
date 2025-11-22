@@ -28,6 +28,7 @@ import { NFTCarosel } from "../features/miniNFT/components/Carosel";
 import { NFTModal } from "../features/miniNFT/components/ModalContent";
 import { LoadingSpinner } from "../shared/components/LoadingSpinner";
 import { shortenAddr } from "../shared/utils/strings";
+import { isAddress, stringToBytes } from "viem";
 
 // -----------------------------
 // Types
@@ -48,7 +49,9 @@ export const DemoPage = () => {
   const demo = demos.find((d) => d.id === demoId);
 
   // View switcher state
-  const [currentView, setCurrentView] = useState<"interactive" | "historical">("interactive");
+  const [currentView, setCurrentView] = useState<"interactive" | "historical">(
+    "interactive",
+  );
 
   // early exits
   if (!demo) {
@@ -99,21 +102,25 @@ export const DemoPage = () => {
   //  WEB3 READ ACTIONS
   // ===================================
 
-  const handleResult = (res: any, key: ActionKey) => {
+  const handleResult = (res: any, key: ActionKey, extra: string | null = null) => {
     if (!res.ok) {
       pushLog({ type: "error", message: res.error! });
     } else {
       const Icon = UI_ACTIONS[key].icon;
       const label = UI_ACTIONS[key].label;
 
-      // if address => const short = shortenAddr(res.data!);
-      
+      const data = isAddress(res.data) ? shortenAddr(res.data) : res.data;
+
       pushLog({
         type: "info",
         message: (
           <span className="flex items-center gap-1">
             {Icon && <Icon className="w-4 h-4" />}
-            <span>{label}</span>
+            <span>
+              {label}
+              { extra && ` ${extra}`}:
+            </span>
+            <span>{data}</span>
           </span>
         ),
       });
@@ -129,14 +136,13 @@ export const DemoPage = () => {
 
     ownerOf: async (arg: string) => {
       const res = await readOwnerOf_(BigInt(arg));
-      if (!res.ok) return handleResult(res, "ownerOf");
-
-      // ushLog({ type: "info", message: `🔍 Owner: ${short}` });
+      const argFmt = `Token #${arg}`;
+      handleResult(res, "ownerOf", argFmt);
     },
 
     balanceOf: async (arg: string) => {
       const res = await readBalanceOf(arg);
-      handleResult(res, "balanceOf");
+      handleResult(res, "balanceOf", arg);
     },
   } as const;
 
@@ -147,7 +153,14 @@ export const DemoPage = () => {
   const UI_ACTIONS = makeActionConfig();
 
   // All action keys in one place
-  const ALL_KEYS = ["mint", "color", "transfer", "balanceOf", "ownerOf", "totalSupply"] as const;
+  const ALL_KEYS = [
+    "mint",
+    "color",
+    "transfer",
+    "balanceOf",
+    "ownerOf",
+    "totalSupply",
+  ] as const;
   type ActionKey = (typeof ALL_KEYS)[number];
 
   const WRITE_KEYS = ["mint", "color", "transfer"] as const;
@@ -183,7 +196,7 @@ export const DemoPage = () => {
 
   const [modal, setModal] = useState<{
     open: boolean;
-    key: keyof typeof UI_ACTIONS;
+    key: ActionKey;
   }>({
     open: false,
     key: "mint",

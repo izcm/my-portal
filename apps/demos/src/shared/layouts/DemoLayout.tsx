@@ -66,12 +66,12 @@ export const DemoLayout = ({
         </div>
 
         {/* CENTER - ACTION BUTTONS */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-4">
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-4 shrink-0">
           {headerActions.map((item, i) => {
             const Icon = item.icon;
 
             const commonClasses =
-              "sm:w-12 sm:h-12 rounded-full overflow-hidden border border-soft hover:scale-108 transition-transform flex items-center justify-center";
+              "w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-soft hover:scale-108 transition-transform flex items-center justify-center shrink-0";
 
             return item.onClick ? (
               <button
@@ -98,7 +98,7 @@ export const DemoLayout = ({
         <div className="flex justify-end">
           {/* VIEW SWITCHER */}
           {showViewSwitcher && onViewChange && (
-            <div className="flex border border-soft rounded-lg overflow-hidden">
+            <div className="hidden md:flex border border-soft rounded-lg overflow-hidden">
               <button
                 onClick={() => onViewChange("interactive")}
                 className={`px-4 py-2 text-sm transition-colors ${
@@ -122,7 +122,6 @@ export const DemoLayout = ({
             </div>
           )}
         </div>
-      
       </header>
 
       {/* MAIN CONTENT */}
@@ -177,7 +176,6 @@ export const DemoLayout = ({
             </a>
           )}
         </div>
-
       </main>
 
       {/* FOOTER */}

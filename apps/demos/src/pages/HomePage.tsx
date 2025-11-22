@@ -13,9 +13,9 @@ function ConnectWallet() {
 
 export const HomePage = () => {
   return (
-    <div className="min-h-screen flex flex-col fade-in">
+    <div className="min-h-screen pb-[1px] flex flex-col fade-in">
       <ConnectWallet />
-      
+
       {/* NAVBAR */}
       <nav className="flex items-center justify-between h-16 px-6 border-b border-default">
         <span className="font-semibold text-lg glow">A2Z Blocks — Demos</span>
@@ -28,8 +28,12 @@ export const HomePage = () => {
       <main className="flex flex-col items-center py-12 grow">
         <div className="w-full max-w-4xl flex flex-col items-center gap-8">
           <div className="text-center">
-            <h1 className="text-3xl font-semibold glow mb-2">Available Demos</h1>
-            <p className="text-muted">Choose a demo to explore Web3 development</p>
+            <h1 className="text-3xl font-semibold glow mb-2">
+              Available Demos
+            </h1>
+            <p className="text-muted">
+              Choose a demo to explore Web3 development
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full px-6">
@@ -46,7 +50,9 @@ export const HomePage = () => {
                 "
               >
                 <h2 className="text-lg font-semibold mb-2">{demo.title}</h2>
-                <p className="text-muted text-sm leading-relaxed">{demo.desc}</p>
+                <p className="text-muted text-sm leading-relaxed">
+                  {demo.desc}
+                </p>
               </Link>
             ))}
           </div>

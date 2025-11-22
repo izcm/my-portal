@@ -97,8 +97,9 @@ export const NFTModal = ({
               <span>{mode.title}</span>
 
               <input
+                autoFocus
                 placeholder={mode.placeholder}
-                onChange={(e) => setReadArgument(e.target.value)}
+                onChange={(e) => setReadArgument(e.target.value.toLowerCase())}
                 className="
                   border border-[var(--border-default)] rounded-lg p-2 
                   bg-[var(--bg-surface)]

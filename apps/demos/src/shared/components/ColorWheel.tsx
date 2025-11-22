@@ -127,17 +127,18 @@ export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
               transparent 100%
             )
           `,
-          filter: 'blur(4px)',
+          filter: "blur(4px)",
         }}
       />
-      
+
       {/* Main color wheel container */}
       <div
         className="relative rounded-full"
         style={{
           width: size,
           height: size,
-          border: '1px solid color-mix(in oklab, var(--border-default) 80%, var(--accent) 20%)',
+          border:
+            "1px solid color-mix(in oklab, var(--border-default) 80%, var(--accent) 20%)",
           boxShadow: `
             0 2px 8px rgba(109, 117, 255, 0.15),
             inset 0 1px 0 rgba(255, 255, 255, 0.05),

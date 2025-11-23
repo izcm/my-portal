@@ -43,7 +43,7 @@ export const makeActionConfig = () =>
     },
 
     color: {
-      label: "Set Color",
+      label: "Color Change",
       title: "Set NFT Color",
       placeholder: "",
       button: "Change NFT Color",

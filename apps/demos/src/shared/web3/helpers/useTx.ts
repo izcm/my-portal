@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseEventLogs } from "viem";
 
+// local
+import { type TxStatus } from "../../data/TX_STATUS";
+
 export const useTx = (abi: readonly any[]) => {
-  const [status, setStatus] = useState<
-    "idle" | "wallet" | "sent" | "mining" | "success" | "reverted"
-  >("idle");
+  const [status, setStatus] = useState<TxStatus>("idle");
 
   const { writeContract, data: hash, status: writeStatus } = useWriteContract();
   const receipt = useWaitForTransactionReceipt({ hash });

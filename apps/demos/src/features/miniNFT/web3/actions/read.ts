@@ -33,7 +33,7 @@ export const readSVG = async (tokenId: bigint) => {
   });
 };
 
-export const readOwnerOf_ = async (tokenId: bigint) => {
+export const readOwnerOf = async (tokenId: bigint) => {
   return safeRead("Owner", async () => {
     const owner = await readContract(wagmiConfig, {
       ...miniConfig,
@@ -43,21 +43,6 @@ export const readOwnerOf_ = async (tokenId: bigint) => {
 
     return owner as `0x${string}`;
   });
-};
-
-export const readOwnerOf = async (tokenId: bigint) => {
-  try {
-    const owner = await readContract(wagmiConfig, {
-      ...miniConfig,
-      functionName: "ownerOf",
-      args: [tokenId],
-    } as any); // typescript complains about auth list
-
-    return owner as `0x${string}`;
-  } catch (err) {
-    console.error("❌ Failed to read ownerOf:", err);
-    return null;
-  }
 };
 
 export const readBalanceOf = async (address: string) => {
@@ -81,7 +66,9 @@ export const fetchMyTokens = async (address: `0x${string}`) => {
 
   for (let i = 1; i <= total; i++) {
     try {
-      const owner = await readOwnerOf(BigInt(i));
+      const res = await readOwnerOf(BigInt(i));
+      const owner = res.data;
+
       if (owner?.toLowerCase() === address.toLowerCase()) {
         myTokens.push(BigInt(i));
       }

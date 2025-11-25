@@ -1,4 +1,4 @@
-import type { UI_NFT } from "../data/UI_NFT";
+import type { UI_NFT } from "../data/NFT";
 
 type NFTCarouselProps = {
   items: UI_NFT[];

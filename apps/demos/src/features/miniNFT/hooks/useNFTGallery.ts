@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useMyTokens } from "../web3/hooks/read";
 import { readSVG } from "../web3/actions/read";
 
-import { type UI_NFT } from "../data/UI_NFT";
+import { type UI_NFT } from "../data/NFT";
 
 // feature hook
 export const useNFTGallery = (wallet: `0x${string}`) => {

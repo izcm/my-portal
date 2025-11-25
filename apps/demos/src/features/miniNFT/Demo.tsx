@@ -16,7 +16,7 @@ import { useTxHandler, isWriteKey } from "./hooks/useTxHandler";
 import { useNFTGallery } from "./hooks/useNFTGallery";
 
 // data
-import { makeActionConfig } from "./data/UI_ACTION_CONFIG";
+import { makeActionConfig } from "./data/action_config";
 
 // components
 import { NFTCarosel } from "./components/Carosel";
@@ -34,7 +34,6 @@ export type LogEntry = {
 
 // ❗ TODO: add historical data dashboard / lookup view
 export const MiniNFTDemo = ({ wallet }: { wallet: `0x${string}` }) => {
-
   // ===================================
   //  WEB3 TX HOOKS
   // ===================================

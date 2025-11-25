@@ -1,3 +1,9 @@
+import { ContractFunctionRevertedError } from "viem";
+import { ContractFunctionExecutionError } from "viem";
+
+// local
+import { MINI_NFT_ERRORS as errors } from "../../../features/miniNFT/data/errors";
+
 export async function safeRead<T>(
   label: string,
   fn: () => Promise<T>,
@@ -6,10 +12,25 @@ export async function safeRead<T>(
     const data = await fn();
     return { ok: true, data };
   } catch (err) {
-    console.log(`❌ ${label}`, err);
+    let errMsg = `${label} failed`;
+
+    if (
+      err instanceof ContractFunctionExecutionError &&
+      err.cause instanceof ContractFunctionRevertedError
+    ) {
+      const decoded = err.cause.data;
+      const name = decoded?.errorName;
+
+      if (name && name in errors) {
+        errMsg = errors[name as keyof typeof errors];
+      }
+    } else {
+      errMsg = `${label} failed`;
+    }
+
     return {
       ok: false,
-      error: `${label} failed`,
+      error: errMsg,
       raw: err,
     };
   }

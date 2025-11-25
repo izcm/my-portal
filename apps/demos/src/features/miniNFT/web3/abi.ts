@@ -73,6 +73,7 @@ export const mini721ContractConfig = {
     },
 
     /* EVENTS / LOGS */
+
     {
       name: "Transfer",
       type: "event",
@@ -89,6 +90,19 @@ export const mini721ContractConfig = {
           type: "uint256",
         },
       ],
+    },
+
+    /* ERRORS */
+
+    {
+      type: "error",
+      name: "NotOwner",
+      inputs: [],
+    },
+    {
+      type: "error",
+      name: "InvalidToken",
+      inputs: [],
     },
   ],
 } as const;

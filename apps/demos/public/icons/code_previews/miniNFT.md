@@ -1,7 +1,8 @@
 ```solidity
 /*
- *	NB: This preview has removed all code comments
- *	See Github Repo for fully commented code + docs
+ *	NB: This preview is stripped for all comments.
+ *	See Github Repo for fully commented code + docs:
+ *  https://github.com/izcm/yul-miniNFT
 */
 object "MiniNFT" {
 

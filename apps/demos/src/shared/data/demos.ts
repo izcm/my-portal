@@ -7,7 +7,7 @@ export const demos = [
     title: "YUL MiniNFT",
     desc: "Minimal NFT in pure Yul assembly.",
     repo: "yul-miniNFT",
-    etherscan: "",
+    contract: "0x520a8d21e74f762a285fcd6cdea842474408d166",
     demo: MiniNFTDemo,
   },
   {
@@ -16,7 +16,7 @@ export const demos = [
     title: "On-Chain Ecosystem",
     desc: "Get your testnet adapter today.",
     repo: "",
-    etherscan: "",
+    contract: "",
     demo: MiniNFTDemo,
   },
   {
@@ -25,7 +25,7 @@ export const demos = [
     title: "On-Chain Voting",
     desc: "Lightweight DAO governance example.",
     repo: "",
-    etherscan: "",
+    contract: "",
     demo: MiniNFTDemo,
   },
 ] as const;

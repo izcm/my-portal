@@ -134,6 +134,7 @@ export const MiniNFTDemo = ({ wallet }: { wallet: `0x${string}` }) => {
   // ===================================
   //  WRITE + READ HANDLERS
   // ===================================
+
   const handleResult = (
     res: any,
     key: ActionKey,
@@ -173,13 +174,13 @@ export const MiniNFTDemo = ({ wallet }: { wallet: `0x${string}` }) => {
     argument: string;
     color: string;
   }) => {
-    if (activeTokenId === null) return;
-
     if (key === "mint") {
       const c = BigInt("0x" + color.slice(1));
       mintTx.mint(wallet, c);
       setActiveTx("mint");
     }
+
+    if (activeTokenId === null) return;
 
     if (key === "color") {
       const c = BigInt("0x" + color.slice(1));
@@ -367,6 +368,7 @@ export const MiniNFTDemo = ({ wallet }: { wallet: `0x${string}` }) => {
             <li>Mint + transfer + events</li>
             <li>Fun & Alternative bitpacking</li>
             <li>Teaches ABI encoding / decoding</li>
+            <li>Custom Revert Errors</li>
             <li>
               Plays with different mapping styles:
               <ul className="not-list-cyber list-sub py-1 text-sm text-muted">

@@ -12,9 +12,9 @@ type DemoLayoutProps = {
   title: string;
   desc: string;
   children: ReactNode;
-  codeUrl?: string;
-  repoUrl?: string;
-  contractUrl?: string;
+  code?: string;
+  repo?: string;
+  contract?: string;
   // View switcher props
   currentView?: "interactive" | "historical";
   onViewChange?: (view: "interactive" | "historical") => void;
@@ -25,9 +25,9 @@ export const DemoLayout = ({
   title,
   desc,
   children,
-  codeUrl,
-  repoUrl,
-  contractUrl,
+  code,
+  repo,
+  contract,
   currentView = "interactive",
   onViewChange,
   showViewSwitcher = false,
@@ -36,7 +36,7 @@ export const DemoLayout = ({
 
   const [modalOpen, setModalOpen] = useState(false);
 
-  const headerActions = [
+  const links = [
     {
       icon: Code,
       onClick: () => {
@@ -44,18 +44,23 @@ export const DemoLayout = ({
         console.log("Opening modal...");
       },
       alt: "Contract Code",
+      text: "View Code",
     },
     {
       icon: Github,
-      link: "https://github.com/izcm/yul-miniNFT",
+      link: `https://github.com/izcm/${repo}`,
       alt: "Github Repository",
+      text: "Github Repo",
     },
     {
       icon: Link,
-      link: "https://etherscan.io/",
+      link: `https://etherscan.io/address/${contract}`,
       alt: "NFT etherscan link",
+      text: "Contract Explorer",
     },
   ];
+
+  console.log(links[2].link);
 
   return (
     <>
@@ -74,7 +79,7 @@ export const DemoLayout = ({
 
           {/* CENTER - ACTION BUTTONS */}
           <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-4 shrink-0">
-            {headerActions.map((item, i) => {
+            {links.map((item, i) => {
               const Icon = item.icon;
 
               const commonClasses =
@@ -141,7 +146,7 @@ export const DemoLayout = ({
             {children}
           </div>
 
-          {/* ACTION BUTTONS */}
+          {/* BOTTOM ACTION BUTTONS */}
           <div
             className="
             flex flex-col sm:flex-row 
@@ -150,38 +155,34 @@ export const DemoLayout = ({
             mt-4 text-sm
           "
           >
-            {codeUrl && (
-              <a
-                className="btn btn-ghost flex items-center justify-center gap-3 w-full sm:w-auto py-3 px-6"
-                href={codeUrl}
-                target="_blank"
-              >
-                <Code className="w-4 h-4 opacity-80" />
-                <span>View Code</span>
-              </a>
-            )}
+            {links.map((item, i) => {
+              const Icon = item.icon;
 
-            {repoUrl && (
-              <a
-                className="btn btn-ghost flex items-center justify-center gap-3 w-full sm:w-auto py-3 px-6"
-                href={repoUrl}
-                target="_blank"
-              >
-                <Github className="w-4 h-4 opacity-80" />
-                <span>GitHub Repo</span>
-              </a>
-            )}
+              const commonClasses =
+                "btn btn-ghost flex items-center justify-center gap-3 w-full sm:w-auto py-3 px-6";
+              const iconClasses = "w-4 h-4 opacity-80";
 
-            {contractUrl && (
-              <a
-                className="btn btn-ghost flex items-center justify-center gap-3 w-full sm:w-auto py-3 px-6"
-                href={contractUrl}
-                target="_blank"
-              >
-                <Link className="w-4 h-4 opacity-80" />
-                <span>Contract Explorer</span>
-              </a>
-            )}
+              return item.onClick ? (
+                <button
+                  key={i}
+                  onClick={item.onClick}
+                  className={`${commonClasses} cursor-pointer`}
+                >
+                  <Icon className={iconClasses} />
+                  <span>{item.text}</span>
+                </button>
+              ) : (
+                <a
+                  key={i}
+                  href={item.link}
+                  target="_blank"
+                  className={commonClasses}
+                >
+                  <Icon className={iconClasses} />
+                  <span>{item.text}</span>
+                </a>
+              );
+            })}
           </div>
         </main>
 

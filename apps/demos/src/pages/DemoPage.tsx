@@ -46,8 +46,8 @@ export const DemoPage = () => {
       <DemoLayout
         title={demo.title}
         desc={demo.desc}
-        codeUrl="https://example.com/code"
-        repoUrl="https://github.com/a2zblocks/example"
+        codeUrl={`/code_previews/${demo.id}`}
+        repoUrl={`https://github.com/izcm/${demo.repo}`}
         contractUrl="https://etherscan.io/address/0x123"
         currentView={currentView}
         onViewChange={setCurrentView}

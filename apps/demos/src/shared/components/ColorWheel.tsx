@@ -5,7 +5,7 @@ type Props = {
   size?: number;
 };
 
-export const ColorWheel: React.FC<Props> = ({ onChange, size = 200 }) => {
+export const ColorWheel = ({ onChange, size = 200 }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const markerRef = useRef<HTMLCanvasElement | null>(null);
 

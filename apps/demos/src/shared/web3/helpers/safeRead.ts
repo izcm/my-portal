@@ -24,8 +24,6 @@ export async function safeRead<T>(
       if (name && name in errors) {
         errMsg = errors[name as keyof typeof errors];
       }
-    } else {
-      errMsg = `${label} failed`;
     }
 
     return {

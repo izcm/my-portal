@@ -66,7 +66,7 @@ export const DemoLayout = ({
     <>
       <div
         className="
-          min-h-screen flex flex-col gap-2 items-center py-8 fade-in"
+          flex flex-col gap-2 items-center py-8 fade-in"
       >
         {/* TOPBAR */}
         <header className="w-full max-w-4xl flex justify-between items-center px-4 mb-4 text-sm relative">
@@ -83,13 +83,14 @@ export const DemoLayout = ({
               const Icon = item.icon;
 
               const commonClasses =
-                "w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-soft hover:scale-110 transition-transform flex items-center justify-center shrink-0";
+                "w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-soft hover:scale-108 transition-transform flex items-center justify-center shrink-0";
 
               return item.onClick ? (
                 <button
+                  disabled
                   key={i}
                   onClick={item.onClick}
-                  className={`${commonClasses} cursor-pointer`}
+                  className={`${commonClasses} cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <Icon />
                 </button>
@@ -164,9 +165,10 @@ export const DemoLayout = ({
 
               return item.onClick ? (
                 <button
+                  disabled
                   key={i}
                   onClick={item.onClick}
-                  className={`${commonClasses} cursor-pointer`}
+                  className={`${commonClasses} cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <Icon className={iconClasses} />
                   <span>{item.text}</span>
@@ -185,11 +187,6 @@ export const DemoLayout = ({
             })}
           </div>
         </main>
-
-        {/* FOOTER */}
-        <footer className="mt-auto text-xs text-dim py-6">
-          © 2025 A2Z Blocks — Humbly built.
-        </footer>
       </div>
 
       {modalOpen && (

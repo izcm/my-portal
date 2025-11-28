@@ -15,10 +15,18 @@ export const App = () => {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/:demoId" element={<DemoPage />} />
-        </Routes>
+        <div className="flex flex-col">
+          <main className="flex-1 min-h-screen">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/:demoId" element={<DemoPage />} />
+            </Routes>
+          </main>
+
+          <footer className="text-xs text-muted py-6 text-center">
+            © 2025 A2Z Blocks — Humbly built.
+          </footer>
+        </div>
       </QueryClientProvider>
     </WagmiProvider>
   );

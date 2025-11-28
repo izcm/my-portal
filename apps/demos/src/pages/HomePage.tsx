@@ -13,7 +13,7 @@ function ConnectWallet() {
 
 export const HomePage = () => {
   return (
-    <div className="min-h-screen pb-[1px] flex flex-col fade-in">
+    <div className="flex flex-col fade-in">
       <ConnectWallet />
 
       {/* NAVBAR */}
@@ -58,11 +58,6 @@ export const HomePage = () => {
           </div>
         </div>
       </main>
-
-      {/* FOOTER */}
-      <footer className="text-xs text-muted text-center py-6">
-        © 2025 A2Z Blocks — Humbly built.
-      </footer>
     </div>
   );
 };

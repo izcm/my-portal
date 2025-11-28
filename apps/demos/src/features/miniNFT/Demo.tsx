@@ -368,7 +368,7 @@ export const MiniNFTDemo = ({ wallet }: { wallet: `0x${string}` }) => {
             <li>Mint + transfer + events</li>
             <li>Fun & Alternative bitpacking</li>
             <li>Teaches ABI encoding / decoding</li>
-            <li>Custom Revert Errors</li>
+            <li>Custom Errors</li>
             <li>
               Plays with different mapping styles:
               <ul className="not-list-cyber list-sub py-1 text-sm text-muted">

@@ -1,9 +1,8 @@
+# MiniNFT Contract Code
+
+> **Note**: This preview is stripped of all comments. See [Github Repo](https://github.com/izcm/yul-miniNFT) for fully commented code + docs.
+
 ```solidity
-/*
- *	NB: This preview is stripped for all comments.
- *	See Github Repo for fully commented code + docs:
- *  https://github.com/izcm/yul-miniNFT
-*/
 object "MiniNFT" {
 
   code {
@@ -332,7 +331,6 @@ object "MiniNFT" {
     }
     data "SVG_HEAD" "<?xml version='1.0' encoding='UTF-8'?><svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1600' viewBox='0 0 1200 1200'><defs><path id='P' d='m712.5 581.25c0 10.355-8.3945 18.75-18.75 18.75s-18.75-8.3945-18.75-18.75 8.3945-18.75 18.75-18.75 18.75 8.3945 18.75 18.75z'/></defs><g fill='none' stroke='#"
     data "SVG_TAIL" "' stroke-width='8'><path d='m1031.2 337.5h-675c-4.9727 0-9.7422 1.9766-13.258 5.4922-3.5156 3.5156-5.4922 8.2852-5.4922 13.258v675c0 4.9727 1.9766 9.7422 5.4922 13.258 3.5156 3.5156 8.2852 5.4922 13.258 5.4922h675c4.9727 0 9.7422-1.9766 13.258-5.4922 3.5156-3.5156 5.4922-8.2852 5.4922-13.258v-675c0-4.9727-1....[see github repo for full svg]/></g></svg>"
-
   }
 }
 ```
